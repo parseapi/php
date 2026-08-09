@@ -1,0 +1,33 @@
+{
+	"name": "parseapi/parseapi",
+	"description": "Official parseAPI client for PHP. One key, minimal JSON, fast.",
+	"type": "library",
+	"license": "MIT",
+	"keywords": ["parseapi", "ip", "geolocation", "email validation", "phone validation", "postal", "timezone", "currency", "weather"],
+	"homepage": "https://parseapi.com",
+	"support": {
+		"docs": "https://parseapi.com/docs",
+		"source": "https://github.com/parseapi/parseapi-php",
+		"issues": "https://github.com/parseapi/parseapi-php/issues"
+	},
+	"authors": [
+		{ "name": "parseAPI", "email": "hello@parseapi.com", "homepage": "https://parseapi.com" }
+	],
+	"require": {
+		"php": ">=8.1",
+		"ext-curl": "*",
+		"ext-json": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^10.5"
+	},
+	"autoload": {
+		"psr-4": { "ParseAPI\\": "src/" }
+	},
+	"autoload-dev": {
+		"psr-4": { "ParseAPI\\Tests\\": "tests/" }
+	},
+	"scripts": {
+		"test": "phpunit tests"
+	}
+}
