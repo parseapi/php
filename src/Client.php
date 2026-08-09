@@ -96,6 +96,11 @@ class Client
 		return $this->get('/city/' . rawurlencode($name), ['country' => $country, 'state' => $state]);
 	}
 
+	public function cityId(string $id): array
+	{
+		return $this->get('/city/id/' . rawurlencode($id));
+	}
+
 	public function citySearch(string $q, ?string $country = null, ?string $state = null, ?int $limit = null): array
 	{
 		return $this->get('/city', ['q' => $q, 'country' => $country, 'state' => $state, 'limit' => $limit]);
@@ -154,6 +159,11 @@ class Client
 	public function currencyRate(string $base, string $quote): array
 	{
 		return $this->get('/currency/' . rawurlencode($base) . '/' . rawurlencode($quote));
+	}
+
+	public function language(string $code): array
+	{
+		return $this->get('/language/' . rawurlencode($code));
 	}
 
 	public function timezone(string $id, ?string $at = null): array

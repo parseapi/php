@@ -66,7 +66,8 @@ expectOk('countryStates', fn () => $parse->countryStates('US'), fn ($r) => count
 expectOk('state', fn () => $parse->state('NC', 'US'), fn ($r) => $r['name'] === 'North Carolina' ? null : 'wrong');
 expectOk('stateDistricts', fn () => $parse->stateDistricts('NC', 'US'), fn ($r) => !empty($r['districts']) ? null : 'empty');
 expectOk('district', fn () => $parse->district('37081'), fn ($r) => str_contains($r['name'], 'Guilford') ? null : 'wrong district');
-expectOk('city', fn () => $parse->city('charlotte', 'US'), fn ($r) => $r['name'] === 'Charlotte' ? null : 'wrong city');
+expectOk('city', fn () => $parse->city('charlotte', 'US'), fn ($r) => ($r['name'] === 'Charlotte' && str_starts_with((string) ($r['id'] ?? ''), 'city_')) ? null : 'wrong city');
+expectOk('cityId', fn () => $parse->cityId($parse->city('charlotte', 'US')['id']), fn ($r) => $r['name'] === 'Charlotte' ? null : 'wrong city');
 expectOk('citySearch', fn () => $parse->citySearch('char', 'US', limit: 5), fn ($r) => !empty($r['cities']) ? null : 'empty');
 expectOk('cityNearest', fn () => $parse->cityNearest(35.2271, -80.8431), fn ($r) => array_key_exists('distance', $r) ? null : 'no distance');
 expectOk('postal', fn () => $parse->postal('28202', 'US'), fn ($r) => $r['city'] === 'Charlotte' ? null : 'wrong city');
@@ -79,6 +80,7 @@ expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? n
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
 expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] === '$' ? null : 'wrong symbol');
 expectOk('currencyRate', fn () => $parse->currencyRate('USD', 'EUR'), fn ($r) => $r['rate'] > 0 && $r['rate'] < 10 ? null : 'bad rate');
+expectOk('language', fn () => $parse->language('en'), fn ($r) => ($r['language'] === 'en' && $r['name'] === 'English') ? null : 'wrong language');
 expectOk('timezone', fn () => $parse->timezone('America/New_York'), fn ($r) => in_array($r['offset_minutes'], [-240, -300], true) ? null : "offset {$r['offset_minutes']}");
 expectOk('holiday', fn () => $parse->holiday('US'), fn ($r) => count($r['holidays']) > 5 ? null : 'too few');
 expectOk('holidayDate', fn () => $parse->holidayDate('US', '2026-12-25'), fn ($r) => ($r['holiday']['name'] ?? null) === 'Christmas Day' ? null : 'not christmas');
