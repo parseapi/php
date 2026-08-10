@@ -62,7 +62,7 @@ Pass `deep: true` to include the nested `deep` object with richer fields.
 
 ```php
 $ip = $parse->ip('52.94.76.10', deep: true);
-$ip['deep']['is_datacenter']; // true
+$ip['deep']['datacenter']; // true
 ```
 
 ## Errors
