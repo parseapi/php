@@ -67,7 +67,7 @@ final class ClientTest extends TestCase
 			'holidayDate' => [fn (Client $p) => $p->holidayDate('US', '2026-12-25'), 'https://api.parseapi.com/holiday/US/2026-12-25'],
 			'elevation' => [fn (Client $p) => $p->elevation(35.2, -80.8), 'https://api.parseapi.com/elevation?lat=35.2&lon=-80.8'],
 			'point deep' => [fn (Client $p) => $p->point(36.0726, -79.792, deep: true), 'https://api.parseapi.com/point?lat=36.0726&lon=-79.792&deep=true'],
-			'weather' => [fn (Client $p) => $p->weather(40.7128, -74.006, unit: 'imperial'), 'https://api.parseapi.com/weather?lat=40.7128&lon=-74.006&unit=imperial'],
+			'weather' => [fn (Client $p) => $p->weather(40.7128, -74.006, deep: true), 'https://api.parseapi.com/weather?lat=40.7128&lon=-74.006&deep=true'],
 			'emoji' => [fn (Client $p) => $p->emoji('rocket'), 'https://api.parseapi.com/emoji/rocket'],
 			'emojiSearch' => [fn (Client $p) => $p->emojiSearch('fire', 20), 'https://api.parseapi.com/emoji?q=fire&limit=20'],
 		];

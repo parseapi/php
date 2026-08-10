@@ -191,9 +191,9 @@ class Client
 		return $this->get('/point', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
 	}
 
-	public function weather(float $lat, float $lon, ?string $unit = null, bool $deep = false): array
+	public function weather(float $lat, float $lon, bool $deep = false): array
 	{
-		return $this->get('/weather', ['lat' => $lat, 'lon' => $lon, 'unit' => $unit, 'deep' => $deep]);
+		return $this->get('/weather', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
 	}
 
 	public function emoji(string $query): array
