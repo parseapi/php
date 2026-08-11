@@ -196,9 +196,9 @@ class Client
 		return $this->get('/weather', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
 	}
 
-	public function emoji(string $query): array
+	public function emoji(string $emoji): array
 	{
-		return $this->get('/emoji/' . rawurlencode($query));
+		return $this->get('/emoji/' . rawurlencode($emoji));
 	}
 
 	public function emojiSearch(string $q, ?int $limit = null): array
