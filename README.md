@@ -21,7 +21,7 @@ One method per endpoint, named after the route.
 
 ```php
 $parse->ip('8.8.8.8');
-$parse->ipMe();
+$parse->ipSelf();
 $parse->email('hello@gmail.com');
 $parse->phone('+14155552671');
 $parse->postal('28202', 'US');

@@ -58,7 +58,7 @@ const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 $parse = new Client();
 
 expectOk('ip', fn () => $parse->ip('8.8.8.8'), fn ($r) => $r['ip'] === '8.8.8.8' ? null : 'wrong ip');
-expectOk('ipMe', fn () => $parse->ipMe(), fn ($r) => !empty($r['ip']) ? null : 'no ip');
+expectOk('ipSelf', fn () => $parse->ipSelf(), fn ($r) => !empty($r['ip']) ? null : 'no ip');
 expectOk('continent', fn () => $parse->continent('NA'), fn ($r) => $r['name'] === 'North America' ? null : 'wrong name');
 expectOk('continentCountries', fn () => $parse->continentCountries('NA'), fn ($r) => !empty($r['countries']) ? null : 'empty');
 expectOk('country', fn () => $parse->country('US'), fn ($r) => $r['iso3'] === 'USA' ? null : 'wrong iso3');

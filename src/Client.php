@@ -51,9 +51,9 @@ class Client
 		return $this->get('/ip/' . rawurlencode($ip), ['deep' => $deep]);
 	}
 
-	public function ipMe(bool $deep = false): array
+	public function ipSelf(bool $deep = false): array
 	{
-		return $this->get('/ip/me', ['deep' => $deep]);
+		return $this->get('/ip', ['deep' => $deep]);
 	}
 
 	public function continent(string $code): array
