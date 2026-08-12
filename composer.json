@@ -7,8 +7,8 @@
 	"homepage": "https://parseapi.com",
 	"support": {
 		"docs": "https://parseapi.com/docs",
-		"source": "https://github.com/parseapi/parseapi-php",
-		"issues": "https://github.com/parseapi/parseapi-php/issues"
+		"source": "https://github.com/parseapi/php",
+		"issues": "https://github.com/parseapi/php/issues"
 	},
 	"authors": [
 		{ "name": "parseAPI", "email": "hello@parseapi.com", "homepage": "https://parseapi.com" }
