@@ -1,5 +1,5 @@
 {
-	"name": "parseapi/parseapi",
+	"name": "parseapi/sdk",
 	"description": "Official parseAPI client for PHP. One key, minimal JSON, fast.",
 	"type": "library",
 	"license": "MIT",

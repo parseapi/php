@@ -1,9 +1,9 @@
-# parseapi/parseapi
+# parseapi/sdk
 
 Official parseAPI client for PHP.
 
 ```bash
-composer require parseapi/parseapi
+composer require parseapi/sdk
 ```
 
 ```php
