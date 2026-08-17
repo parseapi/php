@@ -74,7 +74,7 @@ expectOk('postal', fn () => $parse->postal('28202', 'US'), fn ($r) => $r['city']
 expectOk('postalNearby', fn () => $parse->postalNearby('28202', 'US', 40), fn ($r) => !empty($r['nearby']) ? null : 'empty');
 expectOk('postalDistance', fn () => $parse->postalDistance('28202', '10001', 'US'), fn ($r) => $r['distance'] > 800 && $r['distance'] < 1000 ? null : "distance {$r['distance']}");
 expectOk('email', fn () => $parse->email('hello@gmail.com'), fn ($r) => $r['valid'] === true ? null : 'not valid');
-expectOk('phone', fn () => $parse->phone('+14155552671'), fn ($r) => $r['e164'] === '+14155552671' ? null : 'wrong e164');
+expectOk('phone', fn () => $parse->phone('+14155552671'), fn ($r) => $r['phone'] === '+14155552671' ? null : 'wrong phone');
 expectOk('domain', fn () => $parse->domain('gmail.com'), fn ($r) => $r['available'] === false ? null : 'gmail available?');
 expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? null : 'no mx');
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
