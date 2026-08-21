@@ -166,6 +166,11 @@ class Client
 		return $this->get('/language/' . rawurlencode($code));
 	}
 
+	public function name(string $name): array
+	{
+		return $this->get('/name/' . rawurlencode($name));
+	}
+
 	public function timezone(string $id, ?string $at = null): array
 	{
 		return $this->get('/timezone/' . rawurlencode($id), ['at' => $at]);
