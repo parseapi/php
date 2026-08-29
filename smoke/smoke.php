@@ -88,7 +88,7 @@ expectOk('holidayDate', fn () => $parse->holidayDate('US', '2026-12-25'), fn ($r
 expectOk('holiday null', fn () => $parse->holidayDate('US', '2026-08-12'), fn ($r) => $r['holiday'] === null ? null : 'expected null');
 expectOk('elevation', fn () => $parse->elevation(35.2271, -80.8431), fn ($r) => is_numeric($r['elevation']) ? null : 'no elevation');
 expectOk('point', fn () => $parse->point(36.0726, -79.792), fn ($r) => $r['country'] === 'US' ? null : "country {$r['country']}");
-expectOk('weather', fn () => $parse->weather(40.7128, -74.006), fn ($r) => !empty($r['station']) ? null : 'no station');
+expectOk('weather', fn () => $parse->weather(40.7128, -74.006), fn ($r) => !empty($r['station']['id']) ? null : 'no station');
 expectOk('emoji', fn () => $parse->emoji('rocket'), fn ($r) => $r['emoji'] === "\u{1F680}" ? null : 'wrong emoji');
 expectOk('emojiSearch', fn () => $parse->emojiSearch('fire', 5), fn ($r) => !empty($r['emojis']) ? null : 'empty');
 expectOk('point deep triad', fn () => $parse->point(36.0726, -79.792, deep: true), fn ($r) => isset($r['deep']) && is_array($r['deep']) ? null : 'deep missing');
