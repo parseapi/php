@@ -136,6 +136,21 @@ class Client
 		return $this->get('/phone/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);
 	}
 
+	public function carrier(string $number, ?string $country = null): array
+	{
+		return $this->get('/carrier/' . rawurlencode($number), ['country' => $country]);
+	}
+
+	public function caller(string $number, ?string $country = null): array
+	{
+		return $this->get('/caller/' . rawurlencode($number), ['country' => $country]);
+	}
+
+	public function hlr(string $number, ?string $country = null): array
+	{
+		return $this->get('/hlr/' . rawurlencode($number), ['country' => $country]);
+	}
+
 	public function domain(string $domain, bool $deep = false): array
 	{
 		return $this->get('/domain/' . rawurlencode($domain), ['deep' => $deep]);
