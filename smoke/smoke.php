@@ -61,6 +61,8 @@ expectOk('ip', fn () => $parse->ip('8.8.8.8'), fn ($r) => $r['ip'] === '8.8.8.8'
 expectOk('ipSelf', fn () => $parse->ipSelf(), fn ($r) => !empty($r['ip']) ? null : 'no ip');
 expectOk('continent', fn () => $parse->continent('NA'), fn ($r) => $r['name'] === 'North America' ? null : 'wrong name');
 expectOk('continentCountries', fn () => $parse->continentCountries('NA'), fn ($r) => !empty($r['countries']) ? null : 'empty');
+expectOk('bloc', fn () => $parse->bloc('EU'), fn ($r) => $r['name'] === 'European Union' && $r['members'] === 27 ? null : 'wrong bloc');
+expectOk('blocCountries', fn () => $parse->blocCountries('SCHENGEN'), fn ($r) => isset($r['countries']) && count($r['countries']) === 29 ? null : 'wrong members');
 expectOk('country', fn () => $parse->country('US'), fn ($r) => $r['iso3'] === 'USA' ? null : 'wrong iso3');
 expectOk('countryStates', fn () => $parse->countryStates('US'), fn ($r) => count($r['states']) >= 50 ? null : 'too few');
 expectOk('state', fn () => $parse->state('NC', 'US'), fn ($r) => $r['name'] === 'North Carolina' ? null : 'wrong');

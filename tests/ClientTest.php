@@ -42,6 +42,8 @@ final class ClientTest extends TestCase
 			'ip deep' => [fn (Client $p) => $p->ip('8.8.8.8', deep: true), 'https://api.parseapi.com/ip/8.8.8.8?deep=true'],
 			'continent' => [fn (Client $p) => $p->continent('NA'), 'https://api.parseapi.com/continent/NA'],
 			'continentCountries' => [fn (Client $p) => $p->continentCountries('NA'), 'https://api.parseapi.com/continent/NA/countries'],
+			'bloc' => [fn (Client $p) => $p->bloc('EU'), 'https://api.parseapi.com/bloc/EU'],
+			'blocCountries' => [fn (Client $p) => $p->blocCountries('SCHENGEN'), 'https://api.parseapi.com/bloc/SCHENGEN/countries'],
 			'country' => [fn (Client $p) => $p->country('US'), 'https://api.parseapi.com/country/US'],
 			'countryStates' => [fn (Client $p) => $p->countryStates('US'), 'https://api.parseapi.com/country/US/states'],
 			'state' => [fn (Client $p) => $p->state('NC', 'US'), 'https://api.parseapi.com/state/NC?country=US'],

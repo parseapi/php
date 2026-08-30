@@ -66,6 +66,16 @@ class Client
 		return $this->get('/continent/' . rawurlencode($code) . '/countries');
 	}
 
+	public function bloc(string $code): array
+	{
+		return $this->get('/bloc/' . rawurlencode($code));
+	}
+
+	public function blocCountries(string $code): array
+	{
+		return $this->get('/bloc/' . rawurlencode($code) . '/countries');
+	}
+
 	public function country(string $code): array
 	{
 		return $this->get('/country/' . rawurlencode($code));
