@@ -207,6 +207,16 @@ class Client
 		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
 	}
 
+	public function hts(string $code, bool $deep = false, ?string $origin = null): array
+	{
+		return $this->get('/hts/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin]);
+	}
+
+	public function htsSearch(string $q): array
+	{
+		return $this->get('/hts', ['q' => $q]);
+	}
+
 	public function currency(string $code): array
 	{
 		return $this->get('/currency/' . rawurlencode($code));
