@@ -86,19 +86,19 @@ class Client
 		return $this->get('/country/' . rawurlencode($code) . '/states');
 	}
 
-	public function state(string $code, string $country): array
+	public function state(string $code, ?string $country = null): array
 	{
 		return $this->get('/state/' . rawurlencode($code), ['country' => $country]);
 	}
 
-	public function stateDistricts(string $code, string $country): array
+	public function stateDistricts(string $code, ?string $country = null): array
 	{
 		return $this->get('/state/' . rawurlencode($code) . '/districts', ['country' => $country]);
 	}
 
-	public function district(string $code, ?string $country = null): array
+	public function district(string $code, ?string $country = null, ?string $state = null): array
 	{
-		return $this->get('/district/' . rawurlencode($code), ['country' => $country]);
+		return $this->get('/district/' . rawurlencode($code), ['country' => $country, 'state' => $state]);
 	}
 
 	public function city(string $name, ?string $country = null, ?string $state = null): array
@@ -121,17 +121,28 @@ class Client
 		return $this->get('/city', ['lat' => $lat, 'lon' => $lon]);
 	}
 
-	public function postal(string $code, string $country): array
+	public function cityNearby(string $name, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null): array
+	{
+		return $this->get('/city/' . rawurlencode($name) . '/nearby', [
+			'radius' => $radius,
+			'unit' => $unit,
+			'country' => $country,
+			'state' => $state,
+			'limit' => $limit,
+		]);
+	}
+
+	public function postal(string $code, ?string $country = null): array
 	{
 		return $this->get('/postal/' . rawurlencode($code), ['country' => $country]);
 	}
 
-	public function postalNearby(string $code, string $country, ?float $radius = null, ?string $unit = null): array
+	public function postalNearby(string $code, ?string $country = null, ?float $radius = null, ?string $unit = null): array
 	{
 		return $this->get('/postal/' . rawurlencode($code) . '/nearby', ['country' => $country, 'radius' => $radius, 'unit' => $unit]);
 	}
 
-	public function postalDistance(string $from, string $to, string $country): array
+	public function postalDistance(string $from, string $to, ?string $country = null): array
 	{
 		return $this->get('/postal/' . rawurlencode($from) . '/distance/' . rawurlencode($to), ['country' => $country]);
 	}
