@@ -197,6 +197,11 @@ class Client
 		return $this->get('/useragent', ['deep' => $deep], ['User-Agent' => $ua]);
 	}
 
+	public function vin(string $vin, bool $deep = false): array
+	{
+		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
+	}
+
 	public function currency(string $code): array
 	{
 		return $this->get('/currency/' . rawurlencode($code));

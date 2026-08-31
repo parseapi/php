@@ -87,6 +87,8 @@ expectOk('hlr junk free', fn () => $parse->hlr('555-0100'), fn ($r) => $r['valid
 expectOk('domain', fn () => $parse->domain('gmail.com'), fn ($r) => $r['available'] === false ? null : 'gmail available?');
 expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? null : 'no mx');
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
+expectOk('vin', fn () => $parse->vin('1HGCM82633A004352'), fn ($r) => ($r['valid'] === true && $r['make'] === 'Honda' && $r['year'] === 2003) ? null : 'wrong decode');
+expectOk('vin junk', fn () => $parse->vin('1HGCM82613A004352'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
 expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] === '$' ? null : 'wrong symbol');
 expectOk('currencyRate', fn () => $parse->currencyRate('USD', 'EUR'), fn ($r) => $r['rate'] > 0 && $r['rate'] < 10 ? null : 'bad rate');
 expectOk('language', fn () => $parse->language('en'), fn ($r) => ($r['language'] === 'en' && $r['name'] === 'English') ? null : 'wrong language');
