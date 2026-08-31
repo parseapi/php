@@ -63,6 +63,7 @@ final class ClientTest extends TestCase
 			'vat' => [fn (Client $p) => $p->vat('DE136695976'), 'https://api.parseapi.com/vat/DE136695976'],
 			'iban' => [fn (Client $p) => $p->iban('DE89370400440532013000'), 'https://api.parseapi.com/iban/DE89370400440532013000'],
 			'iban country' => [fn (Client $p) => $p->iban('89370400440532013000', 'DE'), 'https://api.parseapi.com/iban/89370400440532013000?country=DE'],
+			'npi' => [fn (Client $p) => $p->npi('1881018208'), 'https://api.parseapi.com/npi/1881018208'],
 			'vat from deep' => [fn (Client $p) => $p->vat('DE136695976', from: 'IE6388047V', deep: true), 'https://api.parseapi.com/vat/DE136695976?deep=true&from=IE6388047V'],
 			'phone encodes plus' => [fn (Client $p) => $p->phone('+14155552671', deep: true), 'https://api.parseapi.com/phone/%2B14155552671?deep=true'],
 			'carrier encodes plus' => [fn (Client $p) => $p->carrier('+14155552671'), 'https://api.parseapi.com/carrier/%2B14155552671'],

@@ -162,6 +162,11 @@ class Client
 		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country]);
 	}
 
+	public function npi(string $npi): array
+	{
+		return $this->get('/npi/' . rawurlencode($npi));
+	}
+
 	public function phone(string $number, ?string $country = null, bool $deep = false): array
 	{
 		return $this->get('/phone/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);

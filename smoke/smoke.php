@@ -79,6 +79,8 @@ expectOk('email', fn () => $parse->email('hello@gmail.com'), fn ($r) => $r['vali
 expectOk('vat', fn () => $parse->vat('DE136695976'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE') ? null : 'not valid DE');
 expectOk('iban', fn () => $parse->iban('DE89370400440532013000'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE' && $r['bank'] === '37040044') ? null : 'not valid DE');
 expectOk('iban junk', fn () => $parse->iban('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
+expectOk('npi', fn () => $parse->npi('1881018208'), fn ($r) => ($r['valid'] === true && $r['registered'] === true) ? null : 'not registered');
+expectOk('npi junk', fn () => $parse->npi('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
 expectOk('phone', fn () => $parse->phone('+14155552671'), fn ($r) => $r['phone'] === '+14155552671' ? null : 'wrong phone');
 // Metered core siblings: junk numbers answer 200 valid false, free, no vendor dip.
 expectOk('carrier junk free', fn () => $parse->carrier('555-0100'), fn ($r) => $r['valid'] === false ? null : 'expected invalid');
