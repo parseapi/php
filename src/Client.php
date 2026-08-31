@@ -152,6 +152,11 @@ class Client
 		return $this->get('/email/' . rawurlencode($email), ['deep' => $deep]);
 	}
 
+	public function vat(string $number, ?string $country = null, bool $deep = false, ?string $from = null): array
+	{
+		return $this->get('/vat/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'from' => $from]);
+	}
+
 	public function phone(string $number, ?string $country = null, bool $deep = false): array
 	{
 		return $this->get('/phone/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);

@@ -76,6 +76,7 @@ expectOk('postal', fn () => $parse->postal('28202', 'US'), fn ($r) => $r['city']
 expectOk('postalNearby', fn () => $parse->postalNearby('28202', 'US', 40), fn ($r) => !empty($r['nearby']) ? null : 'empty');
 expectOk('postalDistance', fn () => $parse->postalDistance('28202', '10001', 'US'), fn ($r) => $r['distance'] > 800 && $r['distance'] < 1000 ? null : "distance {$r['distance']}");
 expectOk('email', fn () => $parse->email('hello@gmail.com'), fn ($r) => $r['valid'] === true ? null : 'not valid');
+expectOk('vat', fn () => $parse->vat('DE136695976'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE') ? null : 'not valid DE');
 expectOk('phone', fn () => $parse->phone('+14155552671'), fn ($r) => $r['phone'] === '+14155552671' ? null : 'wrong phone');
 // Metered core siblings: junk numbers answer 200 valid false, free, no vendor dip.
 expectOk('carrier junk free', fn () => $parse->carrier('555-0100'), fn ($r) => $r['valid'] === false ? null : 'expected invalid');

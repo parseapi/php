@@ -60,6 +60,8 @@ final class ClientTest extends TestCase
 			'postalNearby' => [fn (Client $p) => $p->postalNearby('28202', 'US', radius: 40, unit: 'km'), 'https://api.parseapi.com/postal/28202/nearby?country=US&radius=40&unit=km'],
 			'postalDistance' => [fn (Client $p) => $p->postalDistance('28202', '10001', 'US'), 'https://api.parseapi.com/postal/28202/distance/10001?country=US'],
 			'email' => [fn (Client $p) => $p->email('a@b.com'), 'https://api.parseapi.com/email/a%40b.com'],
+			'vat' => [fn (Client $p) => $p->vat('DE136695976'), 'https://api.parseapi.com/vat/DE136695976'],
+			'vat from deep' => [fn (Client $p) => $p->vat('DE136695976', from: 'IE6388047V', deep: true), 'https://api.parseapi.com/vat/DE136695976?deep=true&from=IE6388047V'],
 			'phone encodes plus' => [fn (Client $p) => $p->phone('+14155552671', deep: true), 'https://api.parseapi.com/phone/%2B14155552671?deep=true'],
 			'carrier encodes plus' => [fn (Client $p) => $p->carrier('+14155552671'), 'https://api.parseapi.com/carrier/%2B14155552671'],
 			'caller with country' => [fn (Client $p) => $p->caller('4155552671', country: 'US'), 'https://api.parseapi.com/caller/4155552671?country=US'],
