@@ -157,6 +157,11 @@ class Client
 		return $this->get('/vat/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'from' => $from]);
 	}
 
+	public function iban(string $iban, ?string $country = null): array
+	{
+		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country]);
+	}
+
 	public function phone(string $number, ?string $country = null, bool $deep = false): array
 	{
 		return $this->get('/phone/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);
