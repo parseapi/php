@@ -197,9 +197,12 @@ class Client
 		return $this->get('/currency/' . rawurlencode($code));
 	}
 
-	public function currencyRate(string $base, string $quote): array
+	public function currencyRate(string $base, string $quote, ?string $date = null, ?float $amount = null): array
 	{
-		return $this->get('/currency/' . rawurlencode($base) . '/' . rawurlencode($quote));
+		return $this->get('/currency/' . rawurlencode($base) . '/' . rawurlencode($quote), [
+			'date' => $date,
+			'amount' => $amount,
+		]);
 	}
 
 	public function language(string $code): array
