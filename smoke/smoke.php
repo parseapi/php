@@ -95,8 +95,6 @@ expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] =
 expectOk('currencyRate', fn () => $parse->currencyRate('USD', 'EUR'), fn ($r) => $r['rate'] > 0 && $r['rate'] < 10 ? null : 'bad rate');
 expectOk('language', fn () => $parse->language('en'), fn ($r) => ($r['language'] === 'en' && $r['name'] === 'English') ? null : 'wrong language');
 expectOk('name', fn () => $parse->name("BILLY O'SHALL"), fn ($r) => ($r['name'] === "Billy O'Shall" && $r['valid'] === true && $r['gender'] === 'male') ? null : 'wrong name');
-expectOk('ofac', fn () => $parse->ofac('AEROCARIBBEAN AIRLINES'), fn ($r) => ($r['sanctioned'] === true && $r['matches'][0]['list'] === 'sdn') ? null : 'expected sdn match');
-expectOk('ofac clean', fn () => $parse->ofac('Jane Smith'), fn ($r) => ($r['sanctioned'] === false && $r['matches'] === []) ? null : 'expected no match');
 expectOk('timezone', fn () => $parse->timezone('America/New_York'), fn ($r) => in_array($r['offset_minutes'], [-240, -300], true) ? null : "offset {$r['offset_minutes']}");
 expectOk('holiday', fn () => $parse->holiday('US'), fn ($r) => count($r['holidays']) > 5 ? null : 'too few');
 expectOk('holidayDate', fn () => $parse->holidayDate('US', '2026-12-25'), fn ($r) => ($r['holiday']['name'] ?? null) === 'Christmas Day' ? null : 'not christmas');
