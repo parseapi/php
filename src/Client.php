@@ -240,9 +240,9 @@ class Client
 		return $this->get('/name/' . rawurlencode($name));
 	}
 
-	public function sanctions(string $name): array
+	public function ofac(string $name): array
 	{
-		return $this->get('/sanctions/' . rawurlencode($name));
+		return $this->get('/ofac/' . rawurlencode($name));
 	}
 
 	public function timezone(string $id, ?string $at = null): array

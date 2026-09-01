@@ -79,7 +79,7 @@ final class ClientTest extends TestCase
 			'currencyRate date amount' => [fn (Client $p) => $p->currencyRate('USD', 'JPY', date: '2026-08-28', amount: 100), 'https://api.parseapi.com/currency/USD/JPY?date=2026-08-28&amount=100'],
 			'language' => [fn (Client $p) => $p->language('en'), 'https://api.parseapi.com/language/en'],
 			'name encodes spaces' => [fn (Client $p) => $p->name('Smith, John'), 'https://api.parseapi.com/name/Smith%2C%20John'],
-			'sanctions encodes spaces' => [fn (Client $p) => $p->sanctions('AEROCARIBBEAN AIRLINES'), 'https://api.parseapi.com/sanctions/AEROCARIBBEAN%20AIRLINES'],
+			'ofac encodes spaces' => [fn (Client $p) => $p->ofac('AEROCARIBBEAN AIRLINES'), 'https://api.parseapi.com/ofac/AEROCARIBBEAN%20AIRLINES'],
 			'timezone encodes slash' => [fn (Client $p) => $p->timezone('America/New_York'), 'https://api.parseapi.com/timezone/America%2FNew_York'],
 			'holiday' => [fn (Client $p) => $p->holiday('US', 1955), 'https://api.parseapi.com/holiday/US?year=1955'],
 			'holidayDate' => [fn (Client $p) => $p->holidayDate('US', '2026-12-25'), 'https://api.parseapi.com/holiday/US/2026-12-25'],

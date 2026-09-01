@@ -51,7 +51,6 @@ $parse->currency('USD');
 $parse->currencyRate('USD', 'EUR');
 $parse->language('en');
 $parse->name('BILLY OSHALL');
-$parse->sanctions('AEROCARIBBEAN AIRLINES');
 $parse->timezone('America/New_York');
 $parse->holiday('US', 2026);
 $parse->holidayDate('US', '2026-12-25');
