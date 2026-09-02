@@ -207,14 +207,14 @@ class Client
 		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
 	}
 
-	public function hts(string $code, bool $deep = false, ?string $origin = null): array
+	public function tariff(string $code, bool $deep = false, ?string $origin = null): array
 	{
-		return $this->get('/hts/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin]);
+		return $this->get('/tariff/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin]);
 	}
 
-	public function htsSearch(string $q): array
+	public function tariffSearch(string $q): array
 	{
-		return $this->get('/hts', ['q' => $q]);
+		return $this->get('/tariff', ['q' => $q]);
 	}
 
 	public function currency(string $code): array
