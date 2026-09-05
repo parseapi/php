@@ -1,0 +1,892 @@
+{
+    "ParseAPI\\Client": {
+        "final": true,
+        "methods": {
+            "__construct": {
+                "parameters": [
+                    {
+                        "name": "apiKey",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "baseUrl",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "timeout",
+                        "type": "float",
+                        "default": 10.0
+                    },
+                    {
+                        "name": "retries",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "transport",
+                        "type": "?callable",
+                        "default": null
+                    }
+                ],
+                "return": ""
+            },
+            "__debugInfo": {
+                "parameters": [],
+                "return": "array"
+            },
+            "address": {
+                "parameters": [
+                    {
+                        "name": "address",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "addressSearch": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "postal",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "city",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "ip",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "asn": {
+                "parameters": [
+                    {
+                        "name": "asn",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "bloc": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "blocCountries": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "caller": {
+                "parameters": [
+                    {
+                        "name": "number",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "carrier": {
+                "parameters": [
+                    {
+                        "name": "number",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "city": {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "cityId": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "cityNearby": {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "radius",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "unit",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "cityNearest": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    }
+                ],
+                "return": "array"
+            },
+            "citySearch": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "close": {
+                "parameters": [],
+                "return": "void"
+            },
+            "company": {
+                "parameters": [
+                    {
+                        "name": "number",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "continent": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "continentCountries": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "country": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "countryStates": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "currency": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "currencyRate": {
+                "parameters": [
+                    {
+                        "name": "base",
+                        "type": "string"
+                    },
+                    {
+                        "name": "quote",
+                        "type": "string"
+                    },
+                    {
+                        "name": "date",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "amount",
+                        "type": "?float",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "date": {
+                "parameters": [
+                    {
+                        "name": "date",
+                        "type": "string"
+                    },
+                    {
+                        "name": "format",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "to",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "dateToday": {
+                "parameters": [
+                    {
+                        "name": "to",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "district": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "domain": {
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "elevation": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    }
+                ],
+                "return": "array"
+            },
+            "email": {
+                "parameters": [
+                    {
+                        "name": "email",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "emoji": {
+                "parameters": [
+                    {
+                        "name": "emoji",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "emojiSearch": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "hlr": {
+                "parameters": [
+                    {
+                        "name": "number",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "holiday": {
+                "parameters": [
+                    {
+                        "name": "country",
+                        "type": "string"
+                    },
+                    {
+                        "name": "year",
+                        "type": "?int",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "holidayDate": {
+                "parameters": [
+                    {
+                        "name": "country",
+                        "type": "string"
+                    },
+                    {
+                        "name": "date",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "iban": {
+                "parameters": [
+                    {
+                        "name": "iban",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "ip": {
+                "parameters": [
+                    {
+                        "name": "ip",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "ipSelf": {
+                "parameters": [
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "language": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "mac": {
+                "parameters": [
+                    {
+                        "name": "mac",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "mx": {
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "name": {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "npi": {
+                "parameters": [
+                    {
+                        "name": "npi",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "phone": {
+                "parameters": [
+                    {
+                        "name": "number",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "point": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "postal": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "postalDistance": {
+                "parameters": [
+                    {
+                        "name": "from",
+                        "type": "string"
+                    },
+                    {
+                        "name": "to",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "postalNearby": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "radius",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "unit",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "state": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "stateDistricts": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "tariff": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "origin",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "tariffSearch": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "timezone": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "at",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "to",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "timezoneAt": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    },
+                    {
+                        "name": "at",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "useragent": {
+                "parameters": [
+                    {
+                        "name": "ua",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "vat": {
+                "parameters": [
+                    {
+                        "name": "number",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "from",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "vin": {
+                "parameters": [
+                    {
+                        "name": "vin",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "weather": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "date",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            }
+        },
+        "properties": []
+    },
+    "ParseAPI\\ParseAPIError": {
+        "final": false,
+        "methods": {
+            "__construct": {
+                "parameters": [
+                    {
+                        "name": "status",
+                        "type": "int"
+                    },
+                    {
+                        "name": "errorCode",
+                        "type": "string"
+                    },
+                    {
+                        "name": "message",
+                        "type": "string"
+                    },
+                    {
+                        "name": "docs",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "requestId",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": ""
+            }
+        },
+        "properties": {
+            "docs": {
+                "type": "?string",
+                "readonly": true
+            },
+            "errorCode": {
+                "type": "string",
+                "readonly": true
+            },
+            "requestId": {
+                "type": "?string",
+                "readonly": true
+            },
+            "status": {
+                "type": "int",
+                "readonly": true
+            }
+        }
+    }
+}

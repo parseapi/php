@@ -11,10 +11,16 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
+	public function testPublicApiMatchesTheReviewedManifest(): void
+	{
+		$expected = json_decode(file_get_contents(__DIR__ . '/public_api.json'), true, 512, JSON_THROW_ON_ERROR);
+		$this->assertSame($expected, PublicApiSnapshot::capture());
+	}
+
 	/** @var array<array{url: string, headers: array}> */
 	private array $calls = [];
 
-	private function stubClient(?array $responses = null, int $retries = 0): Client
+	private function stubClient(?array $responses = null, ?int $retries = 0): Client
 	{
 		$this->calls = [];
 		$queue = $responses;
@@ -29,7 +35,11 @@ final class ClientTest extends TestCase
 				if ($queue === []) {
 					throw new \LogicException('stub exhausted');
 				}
-				return array_shift($queue);
+				$response = array_shift($queue);
+				if ($response instanceof \Throwable) {
+					throw $response;
+				}
+				return $response;
 			},
 		);
 	}
@@ -59,6 +69,9 @@ final class ClientTest extends TestCase
 			'postalBare' => [fn (Client $p) => $p->postal('SW1A 1AA'), 'https://api.parseapi.com/postal/SW1A%201AA'],
 			'postalNearby' => [fn (Client $p) => $p->postalNearby('28202', 'US', radius: 40, unit: 'km'), 'https://api.parseapi.com/postal/28202/nearby?country=US&radius=40&unit=km'],
 			'postalDistance' => [fn (Client $p) => $p->postalDistance('28202', '10001', 'US'), 'https://api.parseapi.com/postal/28202/distance/10001?country=US'],
+			'address' => [fn (Client $p) => $p->address('1600 Pennsylvania Ave NW, Washington, DC 20500', country: 'US'), 'https://api.parseapi.com/address/1600%20Pennsylvania%20Ave%20NW%2C%20Washington%2C%20DC%2020500?country=US'],
+			'addressSearch' => [fn (Client $p) => $p->addressSearch('123 main', country: 'US', postal: '27401', city: 'Greensboro', state: 'NC', ip: '8.8.8.8'), 'https://api.parseapi.com/address?q=123+main&country=US&postal=27401&city=Greensboro&state=NC&ip=8.8.8.8'],
+			'company' => [fn (Client $p) => $p->company('732829320', country: 'FR', deep: true), 'https://api.parseapi.com/company/732829320?country=FR&deep=true'],
 			'email' => [fn (Client $p) => $p->email('a@b.com'), 'https://api.parseapi.com/email/a%40b.com'],
 			'vat' => [fn (Client $p) => $p->vat('DE136695976'), 'https://api.parseapi.com/vat/DE136695976'],
 			'iban' => [fn (Client $p) => $p->iban('DE89370400440532013000'), 'https://api.parseapi.com/iban/DE89370400440532013000'],
@@ -70,21 +83,31 @@ final class ClientTest extends TestCase
 			'caller with country' => [fn (Client $p) => $p->caller('4155552671', country: 'US'), 'https://api.parseapi.com/caller/4155552671?country=US'],
 			'hlr' => [fn (Client $p) => $p->hlr('+447712345678'), 'https://api.parseapi.com/hlr/%2B447712345678'],
 			'domain' => [fn (Client $p) => $p->domain('example.com'), 'https://api.parseapi.com/domain/example.com'],
+			'asn' => [fn (Client $p) => $p->asn('AS13335'), 'https://api.parseapi.com/asn/AS13335'],
+			'mac' => [fn (Client $p) => $p->mac('00:1B:63:84:45:E6'), 'https://api.parseapi.com/mac/00%3A1B%3A63%3A84%3A45%3AE6'],
 			'mx' => [fn (Client $p) => $p->mx('example.com'), 'https://api.parseapi.com/mx/example.com'],
 			'useragent' => [fn (Client $p) => $p->useragent('TestUA/1.0'), 'https://api.parseapi.com/useragent'],
 			'vin' => [fn (Client $p) => $p->vin('1HGCM82633A004352'), 'https://api.parseapi.com/vin/1HGCM82633A004352'],
 			'vin deep' => [fn (Client $p) => $p->vin('1HGCM82633A004352', true), 'https://api.parseapi.com/vin/1HGCM82633A004352?deep=true'],
+			'tariff' => [fn (Client $p) => $p->tariff('8471.30.01.00', deep: true, origin: 'CN'), 'https://api.parseapi.com/tariff/8471.30.01.00?deep=true&origin=CN'],
+			'tariffSearch' => [fn (Client $p) => $p->tariffSearch('sunglasses'), 'https://api.parseapi.com/tariff?q=sunglasses'],
 			'currency' => [fn (Client $p) => $p->currency('USD'), 'https://api.parseapi.com/currency/USD'],
 			'currencyRate' => [fn (Client $p) => $p->currencyRate('USD', 'EUR'), 'https://api.parseapi.com/currency/USD/EUR'],
 			'currencyRate date amount' => [fn (Client $p) => $p->currencyRate('USD', 'JPY', date: '2026-08-28', amount: 100), 'https://api.parseapi.com/currency/USD/JPY?date=2026-08-28&amount=100'],
 			'language' => [fn (Client $p) => $p->language('en'), 'https://api.parseapi.com/language/en'],
 			'name encodes spaces' => [fn (Client $p) => $p->name('Smith, John'), 'https://api.parseapi.com/name/Smith%2C%20John'],
 			'timezone encodes slash' => [fn (Client $p) => $p->timezone('America/New_York'), 'https://api.parseapi.com/timezone/America%2FNew_York'],
+			'timezone conversion' => [fn (Client $p) => $p->timezone('America/New_York', at: '2026-09-05T15:00', to: 'Europe/London'), 'https://api.parseapi.com/timezone/America%2FNew_York?at=2026-09-05T15%3A00&to=Europe%2FLondon'],
+			'timezone coordinates' => [fn (Client $p) => $p->timezoneAt(0, 0, at: '2026-09-05T12:00Z'), 'https://api.parseapi.com/timezone?lat=0&lon=0&at=2026-09-05T12%3A00Z'],
+			'date' => [fn (Client $p) => $p->date('03/04/2026', format: 'mdy', to: '2026-04-01'), 'https://api.parseapi.com/date/03%2F04%2F2026?format=mdy&to=2026-04-01'],
+			'date today' => [fn (Client $p) => $p->dateToday(), 'https://api.parseapi.com/date'],
+			'date today distance' => [fn (Client $p) => $p->dateToday(to: '2026-12-25'), 'https://api.parseapi.com/date?to=2026-12-25'],
 			'holiday' => [fn (Client $p) => $p->holiday('US', 1955), 'https://api.parseapi.com/holiday/US?year=1955'],
 			'holidayDate' => [fn (Client $p) => $p->holidayDate('US', '2026-12-25'), 'https://api.parseapi.com/holiday/US/2026-12-25'],
 			'elevation' => [fn (Client $p) => $p->elevation(35.2, -80.8), 'https://api.parseapi.com/elevation?lat=35.2&lon=-80.8'],
 			'point deep' => [fn (Client $p) => $p->point(36.0726, -79.792, deep: true), 'https://api.parseapi.com/point?lat=36.0726&lon=-79.792&deep=true'],
 			'weather' => [fn (Client $p) => $p->weather(40.7128, -74.006, deep: true), 'https://api.parseapi.com/weather?lat=40.7128&lon=-74.006&deep=true'],
+			'weather history' => [fn (Client $p) => $p->weather(40.7128, -74.006, true, '2026-09-01'), 'https://api.parseapi.com/weather?lat=40.7128&lon=-74.006&deep=true&date=2026-09-01'],
 			'emoji' => [fn (Client $p) => $p->emoji('rocket'), 'https://api.parseapi.com/emoji/rocket'],
 			'emojiSearch' => [fn (Client $p) => $p->emojiSearch('fire', 20), 'https://api.parseapi.com/emoji?q=fire&limit=20'],
 		];
@@ -213,5 +236,152 @@ final class ClientTest extends TestCase
 			$this->assertSame('rate_limited', $e->errorCode);
 			$this->assertCount(3, $this->calls);
 		}
+	}
+
+	public function testNativeResponsePreservesUnknownFieldsAndNulls(): void
+	{
+		$body = '{"country":"zz","future":{"items":[null,false,0]},"deep":{},"unknown":null}';
+		$client = $this->stubClient([[200, [], $body]]);
+		$this->assertSame(json_decode($body, true), $client->country('ZZ'));
+		$this->assertCount(1, $this->calls);
+	}
+
+	public function testMalformedSuccessThrowsWithoutRetrying(): void
+	{
+		$client = $this->stubClient([[200, [], '{"country":']], retries: 2);
+		$this->expectException(\JsonException::class);
+		try {
+			$client->country('US');
+		} finally {
+			$this->assertCount(1, $this->calls);
+		}
+	}
+
+	public function testScalarSuccessIsNotAnEmptyResult(): void
+	{
+		$client = $this->stubClient([[200, [], 'null']]);
+		$this->expectException(\UnexpectedValueException::class);
+		$client->country('US');
+	}
+
+	public static function invalidTimeouts(): array
+	{
+		return [[0.0], [-1.0], [NAN], [INF]];
+	}
+
+	#[DataProvider('invalidTimeouts')]
+	public function testInvalidTimeoutFailsAtConstruction(float $timeout): void
+	{
+		$this->expectException(\InvalidArgumentException::class);
+		new Client('k', timeout: $timeout);
+	}
+
+	public function testNegativeRetriesFailAtConstruction(): void
+	{
+		$this->expectException(\InvalidArgumentException::class);
+		new Client('k', retries: -1);
+	}
+
+	public function testZeroRetriesMakesOneAttempt(): void
+	{
+		$client = $this->stubClient([[503, [], '{}']], retries: 0);
+		$this->expectException(ParseAPIError::class);
+		try {
+			$client->country('US');
+		} finally {
+			$this->assertCount(1, $this->calls);
+		}
+	}
+
+	public function testRetryAfterSupportsHttpDatesAndCapsDelays(): void
+	{
+		$client = new Client('k');
+		$delay = new \ReflectionMethod(Client::class, 'retryDelay');
+		$this->assertSame(0.0, $delay->invoke($client, 0, 'Sun, 06 Nov 1994 08:49:37 GMT'));
+		$this->assertSame(5.0, $delay->invoke($client, 0, gmdate('D, d M Y H:i:s \\G\\M\\T', time() + 60)));
+		$this->assertSame(5.0, $delay->invoke($client, 0, '100'));
+	}
+
+	public function testRedirectIsAnErrorWithoutForwardingTheKey(): void
+	{
+		$client = $this->stubClient([[302, ['location' => 'https://other.example/steal'], '']], retries: 2);
+		try {
+			$client->country('US');
+			$this->fail('expected ParseAPIError');
+		} catch (ParseAPIError $e) {
+			$this->assertSame(302, $e->status);
+			$this->assertCount(1, $this->calls);
+			$this->assertSame('https://api.parseapi.com/country/US', $this->calls[0]['url']);
+		}
+	}
+
+	public function testCloseIsIdempotentAndReleasesTheSession(): void
+	{
+		$client = new Client('k');
+		$curl = new \ReflectionProperty(Client::class, 'curl');
+		$curl->setValue($client, curl_init());
+		$client->close();
+		$client->close();
+		$this->assertNull($curl->getValue($client));
+	}
+
+	public function testDebugOutputDoesNotExposeCredentials(): void
+	{
+		$client = new Client('do_not_log_this_key', baseUrl: 'https://private:password@example.test');
+		ob_start();
+		var_dump($client);
+		$dump = ob_get_clean();
+		foreach ([$dump, print_r($client, true)] as $output) {
+			$this->assertStringNotContainsString('do_not_log_this_key', $output);
+			$this->assertStringNotContainsString('password', $output);
+			$this->assertStringContainsString('[REDACTED]', $output);
+		}
+	}
+
+	public static function retryPolicyCases(): array
+	{
+		return [
+			'country' => [fn (Client $p) => $p->country('US'), 3],
+			'email core' => [fn (Client $p) => $p->email('hello@example.com'), 3],
+			'email deep' => [fn (Client $p) => $p->email('hello@example.com', deep: true), 1],
+			'vat core' => [fn (Client $p) => $p->vat('DE136695976'), 3],
+			'vat deep' => [fn (Client $p) => $p->vat('DE136695976', deep: true), 1],
+			'carrier' => [fn (Client $p) => $p->carrier('+14155552671'), 1],
+			'caller' => [fn (Client $p) => $p->caller('+14155552671'), 1],
+			'hlr' => [fn (Client $p) => $p->hlr('+447712345678'), 1],
+			'address reserved deep' => [fn (Client $p) => $p->address('1600 Pennsylvania Ave NW, Washington, DC 20500', deep: true), 1],
+			'ip plan deep' => [fn (Client $p) => $p->ip('8.8.8.8', deep: true), 3],
+		];
+	}
+
+	#[DataProvider('retryPolicyCases')]
+	public function testDefaultRetryPolicy(callable $invoke, int $expected): void
+	{
+		$client = $this->stubClient(array_fill(0, 3, [503, ['retry-after' => '0'], '{}']), retries: null);
+		try {
+			$invoke($client);
+			$this->fail('expected ParseAPIError');
+		} catch (ParseAPIError $e) {
+			$this->assertSame(503, $e->status);
+			$this->assertCount($expected, $this->calls);
+		}
+	}
+
+	public function testMeteredNetworkFailureIsNotRetriedByDefault(): void
+	{
+		$client = $this->stubClient([new \RuntimeException('response lost')], retries: null);
+		$this->expectException(\RuntimeException::class);
+		try {
+			$client->email('hello@example.com', deep: true);
+		} finally {
+			$this->assertCount(1, $this->calls);
+		}
+	}
+
+	public function testExplicitRetriesOverrideTheMeteredPolicy(): void
+	{
+		$client = $this->stubClient([[503, ['retry-after' => '0'], '{}'], [200, [], '{}']], retries: 1);
+		$this->assertSame([], $client->carrier('+14155552671'));
+		$this->assertCount(2, $this->calls);
 	}
 }
