@@ -1,6 +1,6 @@
 {
 	"name": "parseapi/sdk",
-	"description": "Official parseAPI client for PHP. One key, minimal JSON, fast.",
+	"description": "Official ParseAPI client for PHP. One key, minimal JSON, fast.",
 	"type": "library",
 	"license": "MIT",
 	"keywords": ["parseapi", "ip", "geolocation", "email validation", "phone validation", "postal", "timezone", "currency", "weather"],
@@ -11,7 +11,7 @@
 		"issues": "https://github.com/parseapi/php/issues"
 	},
 	"authors": [
-		{ "name": "parseAPI", "email": "hello@parseapi.com", "homepage": "https://parseapi.com" }
+		{ "name": "ParseAPI", "email": "hello@parseapi.com", "homepage": "https://parseapi.com" }
 	],
 	"require": {
 		"php": ">=8.1",

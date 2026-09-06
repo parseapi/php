@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ParseAPI;
 
 /**
- * Official parseAPI client for PHP.
+ * Official ParseAPI client for PHP.
  *
  *   $parse = new \ParseAPI\Client('your-api-key');
  *   $country = $parse->country('US');
