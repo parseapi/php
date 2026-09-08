@@ -65,11 +65,17 @@ final class Client
 
 	// --- Lookup methods (one per endpoint, named after the route) ---
 
+	/**
+	 * Look up an IP. Deep enrichment is included with a paid plan, without a separate check meter.
+	 */
 	public function ip(string $ip, bool $deep = false): array
 	{
 		return $this->get('/ip/' . rawurlencode($ip), ['deep' => $deep]);
 	}
 
+	/**
+	 * Look up the public IP making this request. On a server, this is the server's IP.
+	 */
 	public function ipSelf(bool $deep = false): array
 	{
 		return $this->get('/ip', ['deep' => $deep]);
@@ -151,6 +157,10 @@ final class Client
 		]);
 	}
 
+	/**
+	 * Look up a postal area. Pass country when known. Check nullable coordinates before another
+	 * location lookup.
+	 */
 	public function postal(string $code, ?string $country = null): array
 	{
 		return $this->get('/postal/' . rawurlencode($code), ['country' => $country]);
@@ -181,11 +191,21 @@ final class Client
 		return $this->get('/company/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);
 	}
 
+	/**
+	 * Parse an email and check its format and domain. Deep explicitly requests a metered
+	 * deliverability check. Deep checks use one attempt by default. An explicit retry count can
+	 * repeat paid usage.
+	 */
 	public function email(string $email, bool $deep = false): array
 	{
 		return $this->get('/email/' . rawurlencode($email), ['deep' => $deep]);
 	}
 
+	/**
+	 * Check VAT format and checksum. Deep requests a metered registry check where supported. Deep
+	 * checks use one attempt by default. Supply your own VAT number for a consultation reference
+	 * when supported.
+	 */
 	public function vat(string $number, ?string $country = null, bool $deep = false, ?string $from = null): array
 	{
 		return $this->get('/vat/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'from' => $from]);
@@ -201,21 +221,35 @@ final class Client
 		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep]);
 	}
 
+	/**
+	 * Parse a phone number and its formats. Pass country for national numbers when needed. Deep
+	 * returns an empty object. Carrier, caller, and HLR are separate metered lookups.
+	 */
 	public function phone(string $number, ?string $country = null, bool $deep = false): array
 	{
 		return $this->get('/phone/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);
 	}
 
+	/**
+	 * Request a metered carrier lookup. No automatic retries by default.
+	 */
 	public function carrier(string $number, ?string $country = null): array
 	{
 		return $this->get('/carrier/' . rawurlencode($number), ['country' => $country]);
 	}
 
+	/**
+	 * Request a metered caller-name lookup for a NANP number. No automatic retries by default.
+	 */
 	public function caller(string $number, ?string $country = null): array
 	{
 		return $this->get('/caller/' . rawurlencode($number), ['country' => $country]);
 	}
 
+	/**
+	 * Request a metered live-status lookup. Null status means unconfirmed. No automatic retries by
+	 * default.
+	 */
 	public function hlr(string $number, ?string $country = null): array
 	{
 		return $this->get('/hlr/' . rawurlencode($number), ['country' => $country]);
@@ -324,6 +358,10 @@ final class Client
 		return $this->get('/point', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
 	}
 
+	/**
+	 * Get weather for a point. Both unit systems are returned. Pass known coordinates from a
+	 * postal, city, or location result.
+	 */
 	public function weather(float $lat, float $lon, bool $deep = false, ?string $date = null): array
 	{
 		return $this->get('/weather', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'date' => $date]);
