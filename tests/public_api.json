@@ -557,6 +557,11 @@
                     {
                         "name": "name",
                         "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
                     }
                 ],
                 "return": "array"

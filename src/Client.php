@@ -313,9 +313,9 @@ final class Client
 		return $this->get('/language/' . rawurlencode($code));
 	}
 
-	public function name(string $name): array
+	public function name(string $name, ?string $country = null): array
 	{
-		return $this->get('/name/' . rawurlencode($name));
+		return $this->get('/name/' . rawurlencode($name), ['country' => $country]);
 	}
 
 	public function timezone(string $id, ?string $at = null, ?string $to = null): array

@@ -44,6 +44,16 @@ final class ClientTest extends TestCase
 		);
 	}
 
+	public function testNameCountryAndKnown(): void
+	{
+		$body = ['name' => '王', 'valid' => true, 'known' => true, 'countries' => ['CN', 'TW'], 'gender' => null, 'future' => true];
+		$client = $this->stubClient([[200, [], json_encode($body)], [200, [], json_encode($body)]]);
+		$this->assertSame($body, $client->name('王', country: 'CN'));
+		$this->assertSame('https://api.parseapi.com/name/%E7%8E%8B?country=CN', $this->calls[0]['url']);
+		$client->name('Andrea');
+		$this->assertSame('https://api.parseapi.com/name/Andrea', $this->calls[1]['url']);
+	}
+
 	public static function urlTable(): array
 	{
 		return [
