@@ -543,6 +543,50 @@
                 ],
                 "return": "array"
             },
+            "measure": {
+                "parameters": [
+                    {
+                        "name": "measure",
+                        "type": "string"
+                    },
+                    {
+                        "name": "to",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "locale",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "system",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "measureUnits": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "unit",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
             "mx": {
                 "parameters": [
                     {

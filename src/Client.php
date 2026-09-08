@@ -379,6 +379,19 @@ final class Client
 
 	// --- Transport ---
 
+	/** Parse or convert a measurement. Amount is a decimal string. Without to, use the
+	 * type's canonical unit. Locale and system (us or imperial) resolve explicit ambiguity. */
+	public function measure(string $measure, ?string $to = null, ?string $locale = null, ?string $system = null): array
+	{
+		return $this->get('/measure/' . rawurlencode($measure), ['to' => $to, 'locale' => $locale, 'system' => $system]);
+	}
+
+	/** Discover reviewed units. unit filters compatible conversion targets. */
+	public function measureUnits(?string $query = null, ?string $type = null, ?string $unit = null): array
+	{
+		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit]);
+	}
+
 	private function get(string $path, array $query = [], array $headers = []): array
 	{
 		$retries = $this->retriesFor($path, $query);

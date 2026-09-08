@@ -92,6 +92,8 @@ expectOk('hlr junk free', fn () => $parse->hlr('555-0100'), fn ($r) => $r['valid
 expectOk('domain', fn () => $parse->domain('gmail.com'), fn ($r) => $r['available'] === false ? null : 'gmail available?');
 expectOk('asn', fn () => $parse->asn('AS13335'), fn ($r) => $r['asn'] === 13335 ? null : 'wrong ASN');
 expectOk('mac', fn () => $parse->mac('00:1B:63:84:45:E6'), fn ($r) => $r['valid'] && $r['mac'] === '00:1B:63:84:45:E6' && $r['local'] === false && $r['multicast'] === false ? null : 'wrong MAC');
+expectOk('measure', fn () => $parse->measure('5 ft 11 in', to: 'cm'), fn ($r) => $r['valid'] && $r['amount'] === '180.34' && $r['unit'] === 'cm' ? null : 'wrong conversion');
+expectOk('measureUnits', fn () => $parse->measureUnits(unit: 'm'), fn ($r) => in_array('m', array_column($r['units'], 'unit'), true) ? null : 'missing metre');
 expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? null : 'no mx');
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
 expectOk('vin', fn () => $parse->vin('1HGCM82633A004352'), fn ($r) => ($r['valid'] === true && $r['make'] === 'Honda' && $r['year'] === 2003) ? null : 'wrong decode');

@@ -100,6 +100,17 @@ Each lookup returns an associative array. Related lookups are separate calls, su
 
 Use named arguments for optional settings, such as `country: 'US'` or `deep: true`.
 
+## Measurements
+
+```php
+$result = $parse->measure('5 ft 11 in', to: 'cm');
+$units = $parse->measureUnits(unit: 'm');
+```
+
+`amount` is a decimal string, such as `"180.34"`. Without `to`, the API returns the canonical unit for the measurement type. Pass `locale` for number formatting and `system` (`us` or `imperial`) when a customary unit needs context. Ambiguous input returns `valid: false`, a `reason`, and available `choices`. Invalid or incompatible target units use the normal API error.
+
+Unit discovery accepts optional `query`, `type`, and `unit` filters. `unit` selects compatible targets. Omit the filters for the reviewed catalog. Both operations use pooled requests.
+
 ## Deep
 
 Choose enrichment for the question you need answered.

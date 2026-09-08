@@ -44,6 +44,17 @@ final class ClientTest extends TestCase
 		);
 	}
 
+	public function testMeasureDecimalAndAmbiguity(): void
+	{
+		foreach ([
+			['measure' => '0 m', 'valid' => true, 'type' => 'future-type', 'amount' => '0', 'unit' => 'm', 'reason' => null, 'choices' => [], 'future' => null],
+			['measure' => '1 gallon', 'valid' => false, 'type' => null, 'amount' => null, 'unit' => null, 'reason' => 'ambiguous_unit', 'choices' => [['unit' => 'us_gal', 'name' => 'US liquid gallon']]],
+		] as $body) {
+			$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
+			$this->assertSame($body, $client->measure($body['measure']));
+		}
+	}
+
 	public function testNameCountryAndKnown(): void
 	{
 		$body = ['name' => '王', 'valid' => true, 'known' => true, 'countries' => ['CN', 'TW'], 'gender' => null, 'future' => true];
@@ -54,9 +65,25 @@ final class ClientTest extends TestCase
 		$this->assertSame('https://api.parseapi.com/name/Andrea', $this->calls[1]['url']);
 	}
 
+	public function testMeasureBadTargetUsesApiError(): void
+	{
+		$client = $this->stubClient([[400, [], '{"code":"bad_request","message":"Incompatible units","request_id":"req_measure"}']], null);
+		try {
+			$client->measure('1 m', to: 'kg');
+			$this->fail('Expected an API error');
+		} catch (ParseAPIError $error) {
+			$this->assertSame('bad_request', $error->errorCode);
+			$this->assertCount(1, $this->calls);
+		}
+	}
+
 	public static function urlTable(): array
 	{
 		return [
+			'measure' => [fn (Client $p) => $p->measure('5 ft 11 in', to: 'cm', locale: 'en-US', system: 'us'), 'https://api.parseapi.com/measure/5%20ft%2011%20in?to=cm&locale=en-US&system=us'],
+			'measure compound' => [fn (Client $p) => $p->measure('1 kg/m^3', to: 'g/L'), 'https://api.parseapi.com/measure/1%20kg%2Fm%5E3?to=g%2FL'],
+			'measureUnits' => [fn (Client $p) => $p->measureUnits(query: 'US gallon', type: 'volume', unit: 'L'), 'https://api.parseapi.com/measure/units?q=US+gallon&type=volume&unit=L'],
+			'measureUnits all' => [fn (Client $p) => $p->measureUnits(), 'https://api.parseapi.com/measure/units'],
 			'ip' => [fn (Client $p) => $p->ip('8.8.8.8'), 'https://api.parseapi.com/ip/8.8.8.8'],
 			'ipSelf' => [fn (Client $p) => $p->ipSelf(), 'https://api.parseapi.com/ip'],
 			'ip deep' => [fn (Client $p) => $p->ip('8.8.8.8', deep: true), 'https://api.parseapi.com/ip/8.8.8.8?deep=true'],
