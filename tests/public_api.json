@@ -382,6 +382,20 @@
                 ],
                 "return": "array"
             },
+            "dns": {
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
             "domain": {
                 "parameters": [
                     {

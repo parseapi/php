@@ -55,6 +55,15 @@ final class ClientTest extends TestCase
 		}
 	}
 
+	public function testDnsPreservesPresentationAndEmptyRecords(): void
+	{
+		foreach ([[], [['name' => 'example.com.', 'type' => 'TXT', 'ttl' => 0, 'value' => '"one" "two"', 'future' => null]]] as $records) {
+			$body = ['domain' => 'example.com', 'records' => $records, 'future' => true];
+			$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
+			$this->assertSame($body, $client->dns('example.com', type: 'TXT'));
+		}
+	}
+
 	public function testNameCountryAndKnown(): void
 	{
 		$body = ['name' => '王', 'valid' => true, 'known' => true, 'countries' => ['CN', 'TW'], 'gender' => null, 'future' => true];
@@ -80,6 +89,8 @@ final class ClientTest extends TestCase
 	public static function urlTable(): array
 	{
 		return [
+			'dns' => [fn (Client $p) => $p->dns('example.com'), 'https://api.parseapi.com/dns/example.com'],
+			'dns type' => [fn (Client $p) => $p->dns('_dmarc.bücher.example.', type: 'txt'), 'https://api.parseapi.com/dns/_dmarc.b%C3%BCcher.example.?type=txt'],
 			'measure' => [fn (Client $p) => $p->measure('5 ft 11 in', to: 'cm', locale: 'en-US', system: 'us'), 'https://api.parseapi.com/measure/5%20ft%2011%20in?to=cm&locale=en-US&system=us'],
 			'measure compound' => [fn (Client $p) => $p->measure('1 kg/m^3', to: 'g/L'), 'https://api.parseapi.com/measure/1%20kg%2Fm%5E3?to=g%2FL'],
 			'measureUnits' => [fn (Client $p) => $p->measureUnits(query: 'US gallon', type: 'volume', unit: 'L'), 'https://api.parseapi.com/measure/units?q=US+gallon&type=volume&unit=L'],

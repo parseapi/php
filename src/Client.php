@@ -270,6 +270,14 @@ final class Client
 		return $this->get('/mac/' . rawurlencode($mac));
 	}
 
+	/** Published DNS records with TTLs. Omit type to check all supported types.
+	 * Type selects the question, including its CNAME chain. Pooled on every plan.
+	 */
+	public function dns(string $domain, ?string $type = null): array
+	{
+		return $this->get('/dns/' . rawurlencode($domain), ['type' => $type]);
+	}
+
 	public function mx(string $domain): array
 	{
 		return $this->get('/mx/' . rawurlencode($domain));

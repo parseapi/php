@@ -88,6 +88,8 @@ $parse->domain('example.com');
 $parse->asn('AS13335');
 $parse->mac('00:1B:63:84:45:E6');
 $parse->mx('example.com');
+$parse->dns('example.com');
+$parse->dns('_dmarc.example.com', type: 'TXT');
 $parse->useragent($uaString);
 $parse->vin('1HGCM82633A004352');
 $parse->tariff('8471.30.01.00', origin: 'CN', deep: true);
@@ -99,6 +101,8 @@ $parse->emojiSearch('fire');
 Each lookup returns an associative array. Related lookups are separate calls, such as `countryStates('US')`. Reading the result makes no further requests. New response fields and `null` values are preserved. JSON objects, including an empty `deep` object, decode as PHP arrays.
 
 Use named arguments for optional settings, such as `country: 'US'` or `deep: true`.
+
+DNS uses pooled requests on every plan. Omit `type` to check A, AAAA, CNAME, MX, NS, TXT, SOA, CAA, SRV and PTR. Records contain `name`, `type`, `ttl` in seconds and a DNS presentation `value`. TXT values retain quoting and chunk boundaries. A selected question can include its CNAME chain. Empty records mean no records. Lookup failures remain errors.
 
 ## Measurements
 
