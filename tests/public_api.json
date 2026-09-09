@@ -810,6 +810,49 @@
                 ],
                 "return": "array"
             },
+            "time": {
+                "parameters": [
+                    {
+                        "name": "timezone",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "at",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "to",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "timeAt": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    },
+                    {
+                        "name": "at",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "to",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
             "timezone": {
                 "parameters": [
                     {

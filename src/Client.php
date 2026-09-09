@@ -338,6 +338,17 @@ final class Client
 		return $this->get('/name/' . rawurlencode($name), ['country' => $country]);
 	}
 
+	/** Current local time, UTC by default. With to, offsetless at is source wall time. */
+	public function time(?string $timezone = null, ?string $at = null, ?string $to = null): array
+	{
+		return $this->get($timezone === null ? '/time' : '/time/' . rawurlencode($timezone), ['at' => $at, 'to' => $to]);
+	}
+
+	public function timeAt(float $lat, float $lon, ?string $at = null, ?string $to = null): array
+	{
+		return $this->get('/time', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'to' => $to]);
+	}
+
 	public function timezone(string $id, ?string $at = null, ?string $to = null): array
 	{
 		return $this->get('/timezone/' . rawurlencode($id), ['at' => $at, 'to' => $to]);
