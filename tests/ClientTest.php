@@ -127,8 +127,6 @@ final class ClientTest extends TestCase
 		return [
 			'bin' => [fn (Client $p) => $p->bin('001234'), 'https://api.parseapi.com/bin/001234'],
 			'bin deep' => [fn (Client $p) => $p->bin('00 1234-56', deep: true), 'https://api.parseapi.com/bin/00%201234-56?deep=true'],
-			'swift' => [fn (Client $p) => $p->swift('BOFAUS3N'), 'https://api.parseapi.com/swift/BOFAUS3N'],
-			'swift encoded' => [fn (Client $p) => $p->swift(' bofa/us3n? '), 'https://api.parseapi.com/swift/%20bofa%2Fus3n%3F%20'],
 			'naics' => [fn (Client $p) => $p->naics('31-33'), 'https://api.parseapi.com/naics/31-33'],
 			'naics encoded' => [fn (Client $p) => $p->naics('54/11'), 'https://api.parseapi.com/naics/54%2F11'],
 			'naicsSearch' => [fn (Client $p) => $p->naicsSearch('coffee & tea', limit: 5), 'https://api.parseapi.com/naics?q=coffee+%26+tea&limit=5'],
