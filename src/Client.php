@@ -230,6 +230,7 @@ final class Client
 		return $this->get('/bin/' . rawurlencode($bin), ['deep' => $deep]);
 	}
 
+
 	public function npi(string $npi, bool $deep = false): array
 	{
 		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep]);
