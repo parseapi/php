@@ -104,6 +104,24 @@ final class ClientTest extends TestCase
 		}
 	}
 
+	public function testAdpOptionalDepth(): void
+	{
+		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["iban", ["DE89370400440532013000"], {"country": "DE"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["currency", ["USD"], {}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
+		foreach ($rows as [$method, $args, $options]) {
+			$native = preg_replace_callback('/\.([a-z])/', fn ($m) => strtoupper($m[1]), $method);
+			$client = $this->stubClient();
+			$client->$native(...[...$args, ...$options]);
+			$client->$native(...[...$args, ...$options, 'deep' => true]);
+			$last = array_slice($this->calls, -2);
+			$firstUrl = parse_url($last[0]['url']);
+			$deepUrl = parse_url($last[1]['url']);
+			parse_str($firstUrl['query'] ?? '', $firstQuery);
+			parse_str($deepUrl['query'] ?? '', $deepQuery);
+			$this->assertSame($firstUrl['path'], $deepUrl['path'], $method);
+			$this->assertSame([...$firstQuery, 'deep' => 'true'], $deepQuery, $method);
+		}
+	}
+
 	public static function urlTable(): array
 	{
 		return [

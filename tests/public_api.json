@@ -154,6 +154,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -173,6 +178,11 @@
                         "name": "state",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -182,6 +192,11 @@
                     {
                         "name": "id",
                         "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -216,6 +231,11 @@
                         "name": "limit",
                         "type": "?int",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -229,6 +249,11 @@
                     {
                         "name": "lon",
                         "type": "float"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -253,6 +278,11 @@
                         "name": "limit",
                         "type": "?int",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -303,6 +333,11 @@
                     {
                         "name": "code",
                         "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -321,6 +356,11 @@
                     {
                         "name": "code",
                         "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -363,6 +403,11 @@
                         "name": "to",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -373,6 +418,11 @@
                         "name": "to",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -392,6 +442,11 @@
                         "name": "state",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -456,6 +511,11 @@
                     {
                         "name": "emoji",
                         "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -470,6 +530,11 @@
                         "name": "limit",
                         "type": "?int",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -484,6 +549,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -525,6 +595,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -558,6 +633,11 @@
                     {
                         "name": "code",
                         "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -629,6 +709,11 @@
                     {
                         "name": "code",
                         "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -643,6 +728,11 @@
                         "name": "limit",
                         "type": "?int",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -657,6 +747,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -722,6 +817,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -740,6 +840,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -764,6 +869,11 @@
                         "name": "unit",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -778,6 +888,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -792,6 +907,11 @@
                         "name": "country",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -849,6 +969,11 @@
                         "name": "to",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -872,6 +997,11 @@
                         "name": "to",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -891,6 +1021,11 @@
                         "name": "to",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -909,6 +1044,11 @@
                         "name": "at",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"

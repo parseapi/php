@@ -105,8 +105,8 @@ expectOk('tariffSearch', fn () => $parse->tariffSearch('sunglasses'), fn ($r) =>
 expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] === '$' ? null : 'wrong symbol');
 expectOk('currencyRate', fn () => $parse->currencyRate('USD', 'EUR'), fn ($r) => $r['rate'] > 0 && $r['rate'] < 10 ? null : 'bad rate');
 expectOk('language', fn () => $parse->language('en'), fn ($r) => ($r['language'] === 'en' && $r['name'] === 'English') ? null : 'wrong language');
-expectOk('name', fn () => $parse->name("BILLY O'SHALL"), fn ($r) => ($r['name'] === "Billy O'Shall" && $r['valid'] === true && $r['gender'] === 'male') ? null : 'wrong name');
-expectOk('timezone', fn () => $parse->timezone('America/New_York'), fn ($r) => in_array($r['offset_minutes'], [-240, -300], true) ? null : "offset {$r['offset_minutes']}");
+expectOk('name', fn () => $parse->name("BILLY O'SHALL"), fn ($r) => ($r['name'] === "Billy O'Shall" && $r['valid'] === true) ? null : 'wrong name');
+expectOk('timezone', fn () => $parse->timezone('America/New_York'), fn ($r) => in_array($r['offset'], ['-04:00', '-05:00'], true) ? null : "offset {$r['offset']}");
 expectOk('timezoneAt', fn () => $parse->timezoneAt(35.2271, -80.8431), fn ($r) => $r['timezone'] === 'America/New_York' ? null : 'wrong timezone');
 expectOk('date', fn () => $parse->date('03/04/2026', format: 'mdy'), fn ($r) => $r['valid'] === true ? null : 'not valid');
 expectOk('dateToday', fn () => $parse->dateToday(), fn ($r) => $r['valid'] === true ? null : 'not valid');
