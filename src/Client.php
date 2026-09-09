@@ -182,6 +182,12 @@ final class Client
 		return $this->get('/address/' . rawurlencode($address), ['country' => $country, 'deep' => $deep]);
 	}
 
+	/**
+	 * Find address suggestions using the context supplied. Prefer postal, or city and state, from the
+	 * form; ip is an optional end-user locality hint for server-side calls. An empty result has reason
+	 * more_input, missing_context or no_matches. Suggestions have reason null. Operational failures
+	 * are errors.
+	 */
 	public function addressSearch(string $query, ?string $country = null, ?string $postal = null, ?string $city = null, ?string $state = null, ?string $ip = null): array
 	{
 		return $this->get('/address', ['q' => $query, 'country' => $country, 'postal' => $postal, 'city' => $city, 'state' => $state, 'ip' => $ip]);
@@ -260,8 +266,9 @@ final class Client
 	}
 
 	/**
-	 * Request a metered live-status lookup. Null status means unconfirmed. No automatic retries by
-	 * default.
+	 * Look up phone status at the last check. Live means assigned and connected means reachable at
+	 * that check. Cached results may be returned. Null means unconfirmed. Deep adds network
+	 * diagnostics within the same metered lookup. No automatic retries by default.
 	 */
 	public function hlr(string $number, ?string $country = null, bool $deep = false): array
 	{
@@ -319,6 +326,12 @@ final class Client
 		return $this->get('/naics', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
 	}
 
+	/**
+	 * Look up the general US duty schedule line. Paid deep adds units and the special and other
+	 * schedule columns. Add origin with deep to resolve country-specific measures. Without origin,
+	 * schedule detail remains available and origin-dependent fields are null. A null effective rate is
+	 * not a zero rate.
+	 */
 	public function tariff(string $code, bool $deep = false, ?string $origin = null): array
 	{
 		return $this->get('/tariff/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin]);
@@ -398,14 +411,20 @@ final class Client
 		return $this->get('/elevation', ['lat' => $lat, 'lon' => $lon]);
 	}
 
+	/**
+	 * Resolve the country, state, district and timezone at coordinates. Deep adds terrain and compact
+	 * nearest-city context on every plan. The timezone ID stays in core. The nearest city is null when
+	 * none is within 200 km.
+	 */
 	public function point(float $lat, float $lon, bool $deep = false): array
 	{
 		return $this->get('/point', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
 	}
 
 	/**
-	 * Get weather for a point. Both unit systems are returned. Pass known coordinates from a
-	 * postal, city, or location result.
+	 * Get current conditions in metric and imperial units. Paid deep adds specialist current
+	 * measurements, forecasts and related detail. With deep, date selects a past UTC day (YYYY-MM-DD)
+	 * in deep.history alongside current conditions. Date alone does not request history.
 	 */
 	public function weather(float $lat, float $lon, bool $deep = false, ?string $date = null): array
 	{
