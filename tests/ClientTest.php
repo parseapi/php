@@ -22,6 +22,13 @@ final class ClientTest extends TestCase
 		}
 	}
 
+	public function testBinPreservesNullFalseAndPrefix(): void
+	{
+		$body = ['bin' => '00123456', 'prefix' => '001234', 'country' => null, 'issuer' => 'Fixture Bank', 'brand' => 'future-brand', 'type' => null, 'prepaid' => false, 'deep' => [], 'future' => true];
+		$client = $this->stubClient([[200, [], '{"bin":"00123456","prefix":"001234","country":null,"issuer":"Fixture Bank","brand":"future-brand","type":null,"prepaid":false,"deep":{},"future":true}']]);
+		$this->assertSame($body, $client->bin('00 1234-56', deep: true));
+	}
+
 	public function testPublicApiMatchesTheReviewedManifest(): void
 	{
 		$expected = json_decode(file_get_contents(__DIR__ . '/public_api.json'), true, 512, JSON_THROW_ON_ERROR);
@@ -100,6 +107,8 @@ final class ClientTest extends TestCase
 	public static function urlTable(): array
 	{
 		return [
+			'bin' => [fn (Client $p) => $p->bin('001234'), 'https://api.parseapi.com/bin/001234'],
+			'bin deep' => [fn (Client $p) => $p->bin('00 1234-56', deep: true), 'https://api.parseapi.com/bin/00%201234-56?deep=true'],
 			'naics' => [fn (Client $p) => $p->naics('31-33'), 'https://api.parseapi.com/naics/31-33'],
 			'naics encoded' => [fn (Client $p) => $p->naics('54/11'), 'https://api.parseapi.com/naics/54%2F11'],
 			'naicsSearch' => [fn (Client $p) => $p->naicsSearch('coffee & tea', limit: 5), 'https://api.parseapi.com/naics?q=coffee+%26+tea&limit=5'],

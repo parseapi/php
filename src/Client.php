@@ -216,6 +216,12 @@ final class Client
 		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country]);
 	}
 
+	/** Look up a 6-11 digit card prefix, preserving leading zeros. */
+	public function bin(string $bin, bool $deep = false): array
+	{
+		return $this->get('/bin/' . rawurlencode($bin), ['deep' => $deep]);
+	}
+
 	public function npi(string $npi, bool $deep = false): array
 	{
 		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep]);

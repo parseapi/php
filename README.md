@@ -41,6 +41,7 @@ $parse->ipSelf();
 $parse->email('hello@gmail.com');
 $parse->vat('DE136695976');
 $parse->iban('DE89370400440532013000');
+$parse->bin('424242');
 $parse->npi('1881018208');
 $parse->phone('+14155552671');
 $parse->carrier('+14155552671');
@@ -184,3 +185,5 @@ Requires PHP 8.1 or later with ext-curl. No Composer dependencies.
 ## Docs
 
 Full field reference for every endpoint: [parseapi.com/docs](https://parseapi.com/docs)
+
+BIN lookup accepts 6-11 digits as a string, including leading zeros. Spaces and hyphens are accepted. `prefix` is the actual longest match and can be shorter than the input. Unknown reference fields are null. `deep` adds an empty object on every plan.
