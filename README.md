@@ -92,6 +92,8 @@ $parse->dns('example.com');
 $parse->dns('_dmarc.example.com', type: 'TXT');
 $parse->useragent($uaString);
 $parse->vin('1HGCM82633A004352');
+$parse->naics('541511');
+$parse->naicsSearch('coffee shop', limit: 5);
 $parse->tariff('8471.30.01.00', origin: 'CN', deep: true);
 $parse->tariffSearch('sunglasses');
 $parse->emoji('rocket');

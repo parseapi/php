@@ -610,6 +610,29 @@
                 ],
                 "return": "array"
             },
+            "naics": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
+            "naicsSearch": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
             "name": {
                 "parameters": [
                     {

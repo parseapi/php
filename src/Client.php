@@ -293,6 +293,18 @@ final class Client
 		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
 	}
 
+	/** US NAICS 2022 definition and hierarchy. */
+	public function naics(string $code): array
+	{
+		return $this->get('/naics/' . rawurlencode($code));
+	}
+
+	/** Keyword search. Limit defaults to 10 and accepts 1-50. */
+	public function naicsSearch(string $query, ?int $limit = null): array
+	{
+		return $this->get('/naics', ['q' => $query, 'limit' => $limit]);
+	}
+
 	public function tariff(string $code, bool $deep = false, ?string $origin = null): array
 	{
 		return $this->get('/tariff/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin]);

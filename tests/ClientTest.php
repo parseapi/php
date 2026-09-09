@@ -89,6 +89,10 @@ final class ClientTest extends TestCase
 	public static function urlTable(): array
 	{
 		return [
+			'naics' => [fn (Client $p) => $p->naics('31-33'), 'https://api.parseapi.com/naics/31-33'],
+			'naics encoded' => [fn (Client $p) => $p->naics('54/11'), 'https://api.parseapi.com/naics/54%2F11'],
+			'naicsSearch' => [fn (Client $p) => $p->naicsSearch('coffee & tea', limit: 5), 'https://api.parseapi.com/naics?q=coffee+%26+tea&limit=5'],
+			'naicsSearch default' => [fn (Client $p) => $p->naicsSearch('plumbing'), 'https://api.parseapi.com/naics?q=plumbing'],
 			'dns' => [fn (Client $p) => $p->dns('example.com'), 'https://api.parseapi.com/dns/example.com'],
 			'dns type' => [fn (Client $p) => $p->dns('_dmarc.bücher.example.', type: 'txt'), 'https://api.parseapi.com/dns/_dmarc.b%C3%BCcher.example.?type=txt'],
 			'measure' => [fn (Client $p) => $p->measure('5 ft 11 in', to: 'cm', locale: 'en-US', system: 'us'), 'https://api.parseapi.com/measure/5%20ft%2011%20in?to=cm&locale=en-US&system=us'],
