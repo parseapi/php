@@ -477,4 +477,24 @@ final class ClientTest extends TestCase
 		$this->assertSame([], $client->carrier('+14155552671'));
 		$this->assertCount(2, $this->calls);
 	}
+
+ public function testNameLocalPreservedInDirectAndNestedResponses(): void
+ {
+  foreach (['München', null] as $nameLocal) {
+   $record = ['name' => 'Munich', 'name_local' => $nameLocal];
+   $cases = [
+    [fn (Client $p) => $p->country('DE'), $record],
+    [fn (Client $p) => $p->state('BY'), $record],
+    [fn (Client $p) => $p->city('Munich'), $record],
+    [fn (Client $p) => $p->language('de'), $record],
+    [fn (Client $p) => $p->holiday('DE'), ['holidays' => [$record]]],
+    [fn (Client $p) => $p->point(48, 11, deep: true), ['deep' => ['city' => $record]]],
+   ];
+   foreach ($cases as [$invoke, $body]) {
+    $client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
+    $this->assertSame($body, $invoke($client));
+   }
+  }
+ }
+
 }
