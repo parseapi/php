@@ -211,6 +211,12 @@ final class Client
 		return $this->get('/vat/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'from' => $from]);
 	}
 
+	/** Check BIC syntax and find a known institution. A null name means unknown. */
+	public function swift(string $code): array
+	{
+		return $this->get('/swift/' . rawurlencode($code));
+	}
+
 	public function iban(string $iban, ?string $country = null): array
 	{
 		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country]);

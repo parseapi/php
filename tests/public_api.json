@@ -796,6 +796,15 @@
                 ],
                 "return": "array"
             },
+            "swift": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    }
+                ],
+                "return": "array"
+            },
             "tariff": {
                 "parameters": [
                     {
