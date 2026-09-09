@@ -11,6 +11,17 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
+	public function testNAICSExclusionsAndMatchPassThrough(): void
+	{
+		$records = json_decode('[{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US"},{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US","exclusions":null,"match":null},{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US","exclusions":[],"match":{"field":"future-field","text":"Future matching evidence","corrections":[],"future":true}},{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US","exclusions":[{"description":"Designing integrated computer systems","codes":[{"naics":"541512","name":"Computer Systems Design Services"}]},{"description":"Activities classified elsewhere","codes":[]}],"match":{"field":"term","text":"Computer software programming services","corrections":[{"from":"sofware","to":"software"}]},"future":true}]', true, 512, JSON_THROW_ON_ERROR);
+		foreach ($records as $record) {
+			$body = ['q' => 'sofware', 'year' => 2022, 'country' => 'US', 'results' => [$record]];
+			$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
+			$this->assertSame($body, $client->naicsSearch('sofware'));
+			$this->assertSame('https://api.parseapi.com/naics?q=sofware', $this->calls[0]['url']);
+		}
+	}
+
 	public function testPublicApiMatchesTheReviewedManifest(): void
 	{
 		$expected = json_decode(file_get_contents(__DIR__ . '/public_api.json'), true, 512, JSON_THROW_ON_ERROR);

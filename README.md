@@ -101,6 +101,8 @@ $parse->emoji('rocket');
 $parse->emojiSearch('fire');
 ```
 
+NAICS records include classification `exclusions`, each with a description and linked codes. Generic exclusions can have no linked codes. Omitted or null exclusions in older responses remain unknown. Search results also include `match`: the matched `field` (`name`, `term` or `naics`) and `text`, plus `corrections` with `from` and `to` tokens for typo fallback. Corrections are empty for exact, plural and prefix matches. Direct code lookups omit `match`. Older responses may omit it.
+
 Each lookup returns an associative array. Related lookups are separate calls, such as `countryStates('US')`. Reading the result makes no further requests. New response fields and `null` values are preserved. JSON objects, including an empty `deep` object, decode as PHP arrays.
 
 Use named arguments for optional settings, such as `country: 'US'` or `deep: true`.
