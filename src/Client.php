@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '0.3.2';
+	public const VERSION = '0.4.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
 	private const RETRY_STATUS = [429, 500, 502, 503, 504];
