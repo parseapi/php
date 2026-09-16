@@ -82,12 +82,12 @@ final class ClientTest extends TestCase
 		}
 	}
 
-	public function testNameCountryAndKnown(): void
+	public function testNameCountryAndNullableEvidence(): void
 	{
 		$body = ['name' => '王', 'valid' => true, 'deep' => ['gender' => null, 'salutation' => null], 'future' => true];
 		$client = $this->stubClient([[200, [], json_encode($body)], [200, [], json_encode($body)]]);
-		$this->assertSame($body, $client->name('王', country: 'CN'));
-		$this->assertSame('https://api.parseapi.com/name/%E7%8E%8B?country=CN', $this->calls[0]['url']);
+		$this->assertSame($body, $client->name('王', country: 'CN', deep: true));
+		$this->assertSame('https://api.parseapi.com/name/%E7%8E%8B?country=CN&deep=true', $this->calls[0]['url']);
 		$client->name('Andrea');
 		$this->assertSame('https://api.parseapi.com/name/Andrea', $this->calls[1]['url']);
 	}
@@ -509,4 +509,40 @@ final class ClientTest extends TestCase
   }
  }
 
+
+	public function testDisplayLanguageIsPerRequestAndPreservesExistingQueries(): void
+	{
+		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["bloc.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["npi", ["1881018208"], {"deep": true}], ["asn", ["AS13335"], {}], ["currency", ["USD"], {"deep": true}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}], ["measure.units", [], {"query": "meter", "unit": "m"}]]', true, 512, JSON_THROW_ON_ERROR);
+		foreach ($operations as [$method, $args, $options]) {
+			$native = preg_replace_callback('/\.([a-z])/', fn ($match) => strtoupper($match[1]), $method);
+			$client = $this->stubClient();
+			$client->$native(...[...$args, ...$options, 'lang' => 'fr-CA']);
+			$client->$native(...[...$args, ...$options]);
+			$this->assertCount(2, $this->calls, $method);
+			$translated = parse_url($this->calls[0]['url']);
+			$original = parse_url($this->calls[1]['url']);
+			$this->assertSame($original['path'], $translated['path'], $method);
+			parse_str($translated['query'] ?? '', $first);
+			parse_str($original['query'] ?? '', $second);
+			$this->assertSame([...$second, 'lang' => 'fr-CA'], $first, $method);
+			$this->assertArrayNotHasKey('lang', $second, $method);
+		}
+	}
+
+	public function testDisplayLanguageKeepsInputControlsAndResponseData(): void
+	{
+		$body = ['name' => 'Nom traduit', 'name_local' => 'Native name', 'future' => null];
+		$client = $this->stubClient([[200, [], json_encode($body)], [200, [], '{}']]);
+		$this->assertSame($body, $client->date('03/04/2026', format: 'dmy', lang: 'en-US'));
+		$client->measure('1,5 m', locale: 'de-DE', to: 'cm');
+		parse_str(parse_url($this->calls[0]['url'], PHP_URL_QUERY), $dateQuery);
+		parse_str(parse_url($this->calls[1]['url'], PHP_URL_QUERY), $measureQuery);
+		$this->assertSame('dmy', $dateQuery['format']);
+		$this->assertSame('de-DE', $measureQuery['locale']);
+		$this->assertArrayNotHasKey('lang', $measureQuery);
+		foreach (['bloc', 'currencyRate', 'measure', 'holiday', 'name', 'email', 'phone', 'address'] as $method) {
+			$names = array_map(fn ($parameter) => $parameter->getName(), (new \ReflectionMethod(Client::class, $method))->getParameters());
+			$this->assertNotContains('lang', $names, $method);
+		}
+	}
 }

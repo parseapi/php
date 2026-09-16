@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '0.4.0';
+	public const VERSION = '0.5.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
 	private const RETRY_STATUS = [429, 500, 502, 503, 504];
@@ -69,27 +69,27 @@ final class Client
 	/**
 	 * Look up an IP. Deep enrichment is included with a paid plan, without a separate check meter.
 	 */
-	public function ip(string $ip, bool $deep = false): array
+	public function ip(string $ip, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/ip/' . rawurlencode($ip), ['deep' => $deep]);
+		return $this->get('/ip/' . rawurlencode($ip), ['deep' => $deep, 'lang' => $lang]);
 	}
 
 	/**
 	 * Look up the public IP making this request. On a server, this is the server's IP.
 	 */
-	public function ipSelf(bool $deep = false): array
+	public function ipSelf(bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/ip', ['deep' => $deep]);
+		return $this->get('/ip', ['deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function continent(string $code): array
+	public function continent(string $code, ?string $lang = null): array
 	{
-		return $this->get('/continent/' . rawurlencode($code));
+		return $this->get('/continent/' . rawurlencode($code), ['lang' => $lang]);
 	}
 
-	public function continentCountries(string $code): array
+	public function continentCountries(string $code, ?string $lang = null): array
 	{
-		return $this->get('/continent/' . rawurlencode($code) . '/countries');
+		return $this->get('/continent/' . rawurlencode($code) . '/countries', ['lang' => $lang]);
 	}
 
 	public function bloc(string $code): array
@@ -97,57 +97,57 @@ final class Client
 		return $this->get('/bloc/' . rawurlencode($code));
 	}
 
-	public function blocCountries(string $code): array
+	public function blocCountries(string $code, ?string $lang = null): array
 	{
-		return $this->get('/bloc/' . rawurlencode($code) . '/countries');
+		return $this->get('/bloc/' . rawurlencode($code) . '/countries', ['lang' => $lang]);
 	}
 
-	public function country(string $code, bool $deep = false): array
+	public function country(string $code, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/country/' . rawurlencode($code), ['deep' => $deep]);
+		return $this->get('/country/' . rawurlencode($code), ['deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function countryStates(string $code): array
+	public function countryStates(string $code, ?string $lang = null): array
 	{
-		return $this->get('/country/' . rawurlencode($code) . '/states');
+		return $this->get('/country/' . rawurlencode($code) . '/states', ['lang' => $lang]);
 	}
 
-	public function state(string $code, ?string $country = null, bool $deep = false): array
+	public function state(string $code, ?string $country = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/state/' . rawurlencode($code), ['country' => $country, 'deep' => $deep]);
+		return $this->get('/state/' . rawurlencode($code), ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function stateDistricts(string $code, ?string $country = null, bool $deep = false): array
+	public function stateDistricts(string $code, ?string $country = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/state/' . rawurlencode($code) . '/districts', ['country' => $country, 'deep' => $deep]);
+		return $this->get('/state/' . rawurlencode($code) . '/districts', ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function district(string $code, ?string $country = null, ?string $state = null, bool $deep = false): array
+	public function district(string $code, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/district/' . rawurlencode($code), ['country' => $country, 'state' => $state, 'deep' => $deep]);
+		return $this->get('/district/' . rawurlencode($code), ['country' => $country, 'state' => $state, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function city(string $name, ?string $country = null, ?string $state = null, bool $deep = false): array
+	public function city(string $name, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/city/' . rawurlencode($name), ['country' => $country, 'state' => $state, 'deep' => $deep]);
+		return $this->get('/city/' . rawurlencode($name), ['country' => $country, 'state' => $state, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function cityId(string $id, bool $deep = false): array
+	public function cityId(string $id, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/city/id/' . rawurlencode($id), ['deep' => $deep]);
+		return $this->get('/city/id/' . rawurlencode($id), ['deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function citySearch(string $query, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false): array
+	public function citySearch(string $query, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/city', ['q' => $query, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep]);
+		return $this->get('/city', ['q' => $query, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function cityNearest(float $lat, float $lon, bool $deep = false): array
+	public function cityNearest(float $lat, float $lon, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/city', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
+		return $this->get('/city', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function cityNearby(string $name, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false): array
+	public function cityNearby(string $name, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null): array
 	{
 		return $this->get('/city/' . rawurlencode($name) . '/nearby', [
 			'radius' => $radius,
@@ -155,7 +155,8 @@ final class Client
 			'country' => $country,
 			'state' => $state,
 			'limit' => $limit,
-		'deep' => $deep,
+			'deep' => $deep,
+			'lang' => $lang,
 		]);
 	}
 
@@ -163,19 +164,19 @@ final class Client
 	 * Look up a postal area. Pass country when known. Check nullable coordinates before another
 	 * location lookup.
 	 */
-	public function postal(string $code, ?string $country = null, bool $deep = false): array
+	public function postal(string $code, ?string $country = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/postal/' . rawurlencode($code), ['country' => $country, 'deep' => $deep]);
+		return $this->get('/postal/' . rawurlencode($code), ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function postalNearby(string $code, ?string $country = null, ?float $radius = null, ?string $unit = null, bool $deep = false): array
+	public function postalNearby(string $code, ?string $country = null, ?float $radius = null, ?string $unit = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/postal/' . rawurlencode($code) . '/nearby', ['country' => $country, 'radius' => $radius, 'unit' => $unit, 'deep' => $deep]);
+		return $this->get('/postal/' . rawurlencode($code) . '/nearby', ['country' => $country, 'radius' => $radius, 'unit' => $unit, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function postalDistance(string $from, string $to, ?string $country = null, bool $deep = false): array
+	public function postalDistance(string $from, string $to, ?string $country = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/postal/' . rawurlencode($from) . '/distance/' . rawurlencode($to), ['country' => $country, 'deep' => $deep]);
+		return $this->get('/postal/' . rawurlencode($from) . '/distance/' . rawurlencode($to), ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
 	public function address(string $address, ?string $country = null, bool $deep = false): array
@@ -194,9 +195,9 @@ final class Client
 		return $this->get('/address', ['q' => $query, 'country' => $country, 'postal' => $postal, 'city' => $city, 'state' => $state, 'ip' => $ip]);
 	}
 
-	public function company(string $number, ?string $country = null, bool $deep = false): array
+	public function company(string $number, ?string $country = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/company/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);
+		return $this->get('/company/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
 	/**
@@ -231,9 +232,9 @@ final class Client
 	}
 
 
-	public function npi(string $npi, bool $deep = false): array
+	public function npi(string $npi, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep]);
+		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
 	}
 
 	/**
@@ -277,9 +278,9 @@ final class Client
 		return $this->get('/domain/' . rawurlencode($domain), ['deep' => $deep]);
 	}
 
-	public function asn(string $asn): array
+	public function asn(string $asn, ?string $lang = null): array
 	{
-		return $this->get('/asn/' . rawurlencode($asn));
+		return $this->get('/asn/' . rawurlencode($asn), ['lang' => $lang]);
 	}
 
 	public function mac(string $mac): array
@@ -338,9 +339,9 @@ final class Client
 		return $this->get('/tariff', ['q' => $query]);
 	}
 
-	public function currency(string $code, bool $deep = false): array
+	public function currency(string $code, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/currency/' . rawurlencode($code), ['deep' => $deep]);
+		return $this->get('/currency/' . rawurlencode($code), ['deep' => $deep, 'lang' => $lang]);
 	}
 
 	public function currencyRate(string $base, string $quote, ?string $date = null, ?float $amount = null): array
@@ -351,9 +352,9 @@ final class Client
 		]);
 	}
 
-	public function language(string $code, bool $deep = false): array
+	public function language(string $code, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/language/' . rawurlencode($code), ['deep' => $deep]);
+		return $this->get('/language/' . rawurlencode($code), ['deep' => $deep, 'lang' => $lang]);
 	}
 
 	/** Name locale selects CLDR formatting rules, default en. Parsing and country-scoped gender stay unchanged. */
@@ -363,34 +364,34 @@ final class Client
 	}
 
 	/** Current local time, UTC by default. With to, offsetless at is source wall time. */
-	public function time(?string $timezone = null, ?string $at = null, ?string $to = null, bool $deep = false): array
+	public function time(?string $timezone = null, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get($timezone === null ? '/time' : '/time/' . rawurlencode($timezone), ['at' => $at, 'to' => $to, 'deep' => $deep]);
+		return $this->get($timezone === null ? '/time' : '/time/' . rawurlencode($timezone), ['at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function timeAt(float $lat, float $lon, ?string $at = null, ?string $to = null, bool $deep = false): array
+	public function timeAt(float $lat, float $lon, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/time', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'to' => $to, 'deep' => $deep]);
+		return $this->get('/time', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function timezone(string $id, ?string $at = null, ?string $to = null, bool $deep = false): array
+	public function timezone(string $id, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/timezone/' . rawurlencode($id), ['at' => $at, 'to' => $to, 'deep' => $deep]);
+		return $this->get('/timezone/' . rawurlencode($id), ['at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function timezoneAt(float $lat, float $lon, ?string $at = null, bool $deep = false): array
+	public function timezoneAt(float $lat, float $lon, ?string $at = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/timezone', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'deep' => $deep]);
+		return $this->get('/timezone', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function date(string $date, ?string $format = null, ?string $to = null, bool $deep = false): array
+	public function date(string $date, ?string $format = null, ?string $to = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/date/' . rawurlencode($date), ['format' => $format, 'to' => $to, 'deep' => $deep]);
+		return $this->get('/date/' . rawurlencode($date), ['format' => $format, 'to' => $to, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function dateToday(?string $to = null, bool $deep = false): array
+	public function dateToday(?string $to = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/date', ['to' => $to, 'deep' => $deep]);
+		return $this->get('/date', ['to' => $to, 'deep' => $deep, 'lang' => $lang]);
 	}
 
 	public function holiday(string $country, ?int $year = null): array
@@ -413,9 +414,9 @@ final class Client
 	 * nearest-city context on every plan. The timezone ID stays in core. The nearest city is null when
 	 * none is within 200 km.
 	 */
-	public function point(float $lat, float $lon, bool $deep = false): array
+	public function point(float $lat, float $lon, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/point', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep]);
+		return $this->get('/point', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'lang' => $lang]);
 	}
 
 	/**
@@ -428,14 +429,14 @@ final class Client
 		return $this->get('/weather', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'date' => $date]);
 	}
 
-	public function emoji(string $emoji, bool $deep = false): array
+	public function emoji(string $emoji, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/emoji/' . rawurlencode($emoji), ['deep' => $deep]);
+		return $this->get('/emoji/' . rawurlencode($emoji), ['deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function emojiSearch(string $query, ?int $limit = null, bool $deep = false): array
+	public function emojiSearch(string $query, ?int $limit = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/emoji', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
+		return $this->get('/emoji', ['q' => $query, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang]);
 	}
 
 	// --- Transport ---
@@ -448,9 +449,9 @@ final class Client
 	}
 
 	/** Discover reviewed units. unit filters compatible conversion targets. */
-	public function measureUnits(?string $query = null, ?string $type = null, ?string $unit = null): array
+	public function measureUnits(?string $query = null, ?string $type = null, ?string $unit = null, ?string $lang = null): array
 	{
-		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit]);
+		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit, 'lang' => $lang]);
 	}
 
 	private function get(string $path, array $query = [], array $headers = []): array
