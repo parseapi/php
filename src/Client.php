@@ -13,6 +13,7 @@ namespace ParseAPI;
 final class Client
 {
 	public const VERSION = '0.5.0';
+	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
 	private const RETRY_STATUS = [429, 500, 502, 503, 504];
@@ -472,6 +473,7 @@ final class Client
 		$requestHeaders = array_merge(
 			['X-API-Key' => $this->apiKey, 'User-Agent' => 'parseapi-php/' . self::VERSION],
 			$headers,
+			['Parse-Version' => self::API_VERSION],
 		);
 
 		$attempt = 0;
