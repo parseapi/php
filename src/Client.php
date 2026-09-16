@@ -356,9 +356,10 @@ final class Client
 		return $this->get('/language/' . rawurlencode($code), ['deep' => $deep]);
 	}
 
-	public function name(string $name, ?string $country = null, bool $deep = false): array
+	/** Name locale selects CLDR formatting rules, default en. Parsing and country-scoped gender stay unchanged. */
+	public function name(string $name, ?string $country = null, bool $deep = false, ?string $nameLocale = null): array
 	{
-		return $this->get('/name/' . rawurlencode($name), ['country' => $country, 'deep' => $deep]);
+		return $this->get('/name/' . rawurlencode($name), ['country' => $country, 'deep' => $deep, 'name_locale' => $nameLocale]);
 	}
 
 	/** Current local time, UTC by default. With to, offsetless at is source wall time. */

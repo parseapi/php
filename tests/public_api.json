@@ -752,6 +752,11 @@
             "name": "deep",
             "type": "bool",
             "default": false
+          },
+          {
+            "name": "nameLocale",
+            "type": "?string",
+            "default": null
           }
         ],
         "return": "array"

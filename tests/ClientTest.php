@@ -84,12 +84,24 @@ final class ClientTest extends TestCase
 
 	public function testNameCountryAndKnown(): void
 	{
-		$body = ['name' => '王', 'valid' => true, 'known' => true, 'gender' => null, 'future' => true];
+		$body = ['name' => '王', 'valid' => true, 'deep' => ['gender' => null, 'salutation' => null], 'future' => true];
 		$client = $this->stubClient([[200, [], json_encode($body)], [200, [], json_encode($body)]]);
 		$this->assertSame($body, $client->name('王', country: 'CN'));
 		$this->assertSame('https://api.parseapi.com/name/%E7%8E%8B?country=CN', $this->calls[0]['url']);
 		$client->name('Andrea');
 		$this->assertSame('https://api.parseapi.com/name/Andrea', $this->calls[1]['url']);
+	}
+
+	public function testNameFormattingLocaleAndNullableResults(): void
+	{
+		foreach ([['short' => 'R.J. Smith', 'directory' => 'Smith, Robert James', 'initials' => 'RJS'], ['short' => null, 'directory' => null, 'initials' => null], ['gender' => null], []] as $detail) {
+			$body = ['name' => 'Robert James Smith', 'deep' => $detail];
+			$client = $this->stubClient([[200, [], json_encode($body)], [200, [], json_encode($body)]]);
+			$this->assertSame($body, $client->name('Robert James Smith', country: 'US', deep: true, nameLocale: 'en-GB'));
+			$this->assertSame('https://api.parseapi.com/name/Robert%20James%20Smith?country=US&deep=true&name_locale=en-GB', $this->calls[0]['url']);
+			$client->name('Andrea', 'IT', true);
+			$this->assertSame('https://api.parseapi.com/name/Andrea?country=IT&deep=true', $this->calls[1]['url']);
+		}
 	}
 
 	public function testMeasureBadTargetUsesApiError(): void
