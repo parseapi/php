@@ -11,6 +11,17 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
+	public function testEmailEnrichmentPreservesFalseNullAndFutureCodes(): void
+	{
+		foreach (['{}', '{"deep":{}}', '{"deep": {"first_name":null,"no_reply":null,"tag":null,"mail_provider":null,"status":null,"reason":null}}', '{"deep": {"first_name":"Jane","no_reply":false,"tag":"news","mail_provider":"future-provider","deliverable":true,"catchall":false,"status":"future-status","reason":"future_reason"},"future":true}'] as $json) {
+			$extra = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+			$extra->email = 'jane.doe+news@example.com';
+			$body = json_encode($extra, JSON_THROW_ON_ERROR);
+			$client = $this->stubClient([[200, [], $body]]);
+			$this->assertSame(json_decode($body, true, 512, JSON_THROW_ON_ERROR), $client->email($extra->email, deep: true));
+		}
+	}
+
 	public function testNAICSExclusionsAndMatchPassThrough(): void
 	{
 		$records = json_decode('[{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US"},{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US","exclusions":null,"match":null},{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US","exclusions":[],"match":{"field":"future-field","text":"Future matching evidence","corrections":[],"future":true}},{"naics":"541511","name":"Custom Computer Programming Services","description":null,"level":6,"parent":"54151","parent_name":"Computer Systems Design and Related Services","children":[],"year":2022,"country":"US","exclusions":[{"description":"Designing integrated computer systems","codes":[{"naics":"541512","name":"Computer Systems Design Services"}]},{"description":"Activities classified elsewhere","codes":[]}],"match":{"field":"term","text":"Computer software programming services","corrections":[{"from":"sofware","to":"software"}]},"future":true}]', true, 512, JSON_THROW_ON_ERROR);
