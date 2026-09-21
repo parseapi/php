@@ -16,8 +16,8 @@
           },
           {
             "name": "timeout",
-            "type": "float",
-            "default": 10.0
+            "type": "?float",
+            "default": null
           },
           {
             "name": "retries",
@@ -1014,6 +1014,25 @@
             "name": "lang",
             "type": "?string",
             "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "stack": {
+        "parameters": [
+          {
+            "name": "domain",
+            "type": "string"
+          },
+          {
+            "name": "deep",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "pretty",
+            "type": "bool",
+            "default": false
           }
         ],
         "return": "array"

@@ -23,15 +23,17 @@ final class Client
 	private string $apiKey;
 	private string $baseUrl;
 	private float $timeout;
+	private bool $timeoutExplicit;
 	private ?int $retries;
 	/** @var ?callable fn(string $url, array $headers): array{0:int,1:array,2:string} */
 	private $transport;
 	private ?\CurlHandle $curl = null;
 
+	/** Null timeout selects operation defaults; explicit numbers apply to every lookup. */
 	public function __construct(
 		?string $apiKey = null,
 		?string $baseUrl = null,
-		float $timeout = 10.0,
+		?float $timeout = null,
 		?int $retries = null,
 		?callable $transport = null,
 	) {
@@ -40,6 +42,8 @@ final class Client
 		if ($key === null || $key === '') {
 			throw new \InvalidArgumentException('parseapi: missing API key. Pass one or set PARSEAPI_KEY.');
 		}
+		$this->timeoutExplicit = $timeout !== null;
+		$timeout ??= 10.0;
 		if (!is_finite($timeout) || $timeout <= 0) {
 			throw new \InvalidArgumentException('parseapi: timeout must be a finite positive number.');
 		}
@@ -273,6 +277,15 @@ final class Client
 		return $this->get('/hlr/' . rawurlencode($number), ['country' => $country, 'deep' => $deep]);
 	}
 
+	/** Identify website technologies and versions by category.
+	 * All categories are lists. Scope, pages and partial describe bounded coverage.
+	 * Lists are null when no page could be checked and empty for no matches.
+	 */
+	public function stack(string $domain, bool $deep = false, bool $pretty = false): array
+	{
+		return $this->get('/stack/' . rawurlencode($domain), ['deep' => $deep, 'pretty' => $pretty]);
+	}
+
 	/** Check whether a domain is registered. Deep adds registration dates, registrar, status and DNSSEC on paid plans. */
 	public function domain(string $domain, bool $deep = false): array
 	{
@@ -455,6 +468,11 @@ final class Client
 		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit, 'lang' => $lang]);
 	}
 
+	private function timeoutFor(string $path): float
+	{
+		return !$this->timeoutExplicit && str_starts_with($path, '/stack/') ? 35.0 : $this->timeout;
+	}
+
 	private function get(string $path, array $query = [], array $headers = []): array
 	{
 		$retries = $this->retriesFor($path, $query);
@@ -479,7 +497,7 @@ final class Client
 		$attempt = 0;
 		while (true) {
 			try {
-				[$status, $responseHeaders, $body] = $this->execute($url, $requestHeaders);
+				[$status, $responseHeaders, $body] = $this->execute($url, $requestHeaders, $this->timeoutFor($path));
 			} catch (\RuntimeException $e) {
 				if ($attempt < $retries) {
 					usleep((int) ($this->retryDelay($attempt, null) * 1_000_000));
@@ -508,7 +526,7 @@ final class Client
 	}
 
 	/** @return array{0:int,1:array,2:string} status, lowercased headers, body */
-	private function execute(string $url, array $headers): array
+	private function execute(string $url, array $headers, float $timeout): array
 	{
 		if ($this->transport !== null) {
 			return ($this->transport)($url, $headers);
@@ -527,7 +545,7 @@ final class Client
 			CURLOPT_HTTPGET => true,
 			CURLOPT_FOLLOWLOCATION => false,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT_MS => (int) ($this->timeout * 1000),
+			CURLOPT_TIMEOUT_MS => (int) ($timeout * 1000),
 			CURLOPT_HTTPHEADER => $headerLines,
 			CURLOPT_HEADERFUNCTION => static function ($curl, string $line) use (&$responseHeaders): int {
 				$parts = explode(':', $line, 2);

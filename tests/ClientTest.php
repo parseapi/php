@@ -11,6 +11,36 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
+	public function testStackPreservesNullEmptyAndCoreVersions(): void
+	{
+		$records = json_decode('[{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":null,"scope":"homepage","pages":0,"partial":null,"cms":null,"servers":null,"frameworks":null,"ecommerce":null,"analytics":null,"chat":null,"payments":null,"hosting":null,"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"homepage","pages":1,"partial":true,"cms":[],"servers":[],"frameworks":[],"ecommerce":[],"analytics":[],"chat":[],"payments":[],"hosting":[],"deep":{},"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"homepage","pages":1,"partial":true,"cms":[{"technology":"wordpress","name":"WordPress","version":"6.8.2"}],"servers":[{"technology":"nginx","name":"nginx","version":null}],"frameworks":[{"technology":"react","name":"React","version":null}],"ecommerce":[],"analytics":[],"chat":[],"payments":[],"hosting":[],"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"site","pages":6,"partial":false,"cms":[{"technology":"wordpress","name":"WordPress","version":"6.8.2"},{"technology":"ghost","name":"Ghost","version":null}],"servers":[{"technology":"nginx","name":"nginx","version":null},{"technology":"apache","name":"Apache","version":null}],"frameworks":[{"technology":"nextjs","name":"Next.js","version":"15.0.0","future":true},{"technology":"react","name":"React","version":null}],"ecommerce":[{"technology":"woocommerce","name":"WooCommerce","version":null}],"analytics":[{"technology":"google-analytics","name":"Google Analytics","version":null}],"chat":[{"technology":"intercom","name":"Intercom","version":null}],"payments":[{"technology":"stripe","name":"Stripe","version":null}],"hosting":[{"technology":"vercel","name":"Vercel","version":null}],"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"site","pages":3,"partial":true,"cms":[],"servers":[],"frameworks":[{"technology":"nextjs","name":"Next.js","version":null,"future":true}],"ecommerce":[],"analytics":[],"chat":[],"payments":[],"hosting":[],"deep":{},"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":null,"scope":"site","pages":0,"partial":null,"cms":null,"servers":null,"frameworks":null,"ecommerce":null,"analytics":null,"chat":null,"payments":null,"hosting":null,"deep":{},"future":true}]', true, 512, JSON_THROW_ON_ERROR);
+		foreach ($records as $body) {
+			$client = $this->stubClient([[200, [], json_encode($body)], [200, [], json_encode($body)]]);
+			$this->assertSame($body, $client->stack('bücher.example', deep: true, pretty: true));
+			$this->assertSame($body, $client->stack('example.com'));
+			$this->assertSame('https://api.parseapi.com/stack/b%C3%BCcher.example?deep=true&pretty=true', $this->calls[0]['url']);
+			$this->assertSame('https://api.parseapi.com/stack/example.com', $this->calls[1]['url']);
+			$this->assertSame('2.0.0', $this->calls[0]['headers']['Parse-Version']);
+		}
+	}
+
+	public function testStackDeadlinePreservesExplicitTimeoutIncludingTenSeconds(): void
+	{
+		// Exercise default selection independently of the native cURL clock.
+		$timeoutFor = new \ReflectionMethod(Client::class, 'timeoutFor');
+		foreach ([null, 10.0, 1.2, 45.0] as $configured) {
+			$client = new Client('fixture', timeout: $configured, transport: fn() => [200, [], '{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":null,"scope":"site","pages":0,"partial":null,"cms":null,"servers":null,"frameworks":null,"ecommerce":null,"analytics":null,"chat":null,"payments":null,"hosting":null,"deep":{},"future":true}']);
+			$this->assertSame($configured ?? 35.0, $timeoutFor->invoke($client, '/stack/example.com'));
+			$this->assertSame($configured ?? 10.0, $timeoutFor->invoke($client, '/domain/example.com'));
+			$this->assertSame($configured ?? 10.0, $timeoutFor->invoke($client, '/stack-other/example.com'));
+			$this->assertNull($client->stack('example.com')['frameworks']);
+			$this->assertSame([], $client->stack('example.com', deep: true)['deep']);
+		}
+		// A later named argument must not make an omitted timeout look explicit.
+		$client = new Client('fixture', retries: 0, transport: fn() => [200, [], '{}']);
+		$this->assertSame(35.0, $timeoutFor->invoke($client, '/stack/example.com'));
+	}
+
 	public function testEmailEnrichmentPreservesFalseNullAndFutureCodes(): void
 	{
 		foreach (['{}', '{"deep":{}}', '{"deep": {"first_name":null,"no_reply":null,"tag":null,"mail_provider":null,"status":null,"reason":null}}', '{"deep": {"first_name":"Jane","no_reply":false,"tag":"news","mail_provider":"future-provider","deliverable":true,"catchall":false,"status":"future-status","reason":"future_reason"},"future":true}'] as $json) {
