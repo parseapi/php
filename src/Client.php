@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.6.0';
+	public const VERSION = '1.7.0';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -343,14 +343,14 @@ final class Client
 	 * schedule detail remains available and origin-dependent fields are null. A null effective rate is
 	 * not a zero rate.
 	 */
-	public function tariff(string $code, bool $deep = false, ?string $origin = null): array
+	public function tariff(string $code, bool $deep = false, ?string $origin = null, ?string $edition = null, ?string $date = null): array
 	{
-		return $this->get('/tariff/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin]);
+		return self::tariffSelection($this->get('/tariff/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin, 'edition' => $edition, 'date' => $date]), $edition, $date);
 	}
 
-	public function tariffSearch(string $query): array
+	public function tariffSearch(string $query, ?string $edition = null, ?string $date = null): array
 	{
-		return $this->get('/tariff', ['q' => $query]);
+		return self::tariffSelection($this->get('/tariff', ['q' => $query, 'edition' => $edition, 'date' => $date]), $edition, $date);
 	}
 
 	public function currency(string $code, bool $deep = false, ?string $lang = null): array
@@ -501,6 +501,14 @@ final class Client
 	public function measureUnits(?string $query = null, ?string $type = null, ?string $unit = null, ?string $lang = null): array
 	{
 		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit, 'lang' => $lang]);
+	}
+
+	private static function tariffSelection(array $result, ?string $edition, ?string $date): array
+	{
+		if (($edition !== null || $date !== null) && (!is_string($result['edition'] ?? null) || preg_match('/\A[a-f0-9]{64}\z/', $result['edition']) !== 1 || ($edition !== null && $result['edition'] !== $edition) || ($result['date'] ?? null) !== $date)) {
+			throw new ParseAPIError(0, 'tariff_selection_mismatch', 'Tariff response did not confirm the requested edition/date. The server may not support this selection.');
+		}
+		return $result;
 	}
 
 	private function timeoutFor(string $path): float

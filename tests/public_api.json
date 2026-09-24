@@ -1100,6 +1100,16 @@
             "name": "origin",
             "type": "?string",
             "default": null
+          },
+          {
+            "name": "edition",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "date",
+            "type": "?string",
+            "default": null
           }
         ],
         "return": "array"
@@ -1109,6 +1119,16 @@
           {
             "name": "query",
             "type": "string"
+          },
+          {
+            "name": "edition",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "date",
+            "type": "?string",
+            "default": null
           }
         ],
         "return": "array"
