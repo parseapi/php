@@ -81,8 +81,8 @@ expectOk('company', fn () => $parse->company('732829320', country: 'FR'), fn ($r
 expectOk('email', fn () => $parse->email('hello@gmail.com'), fn ($r) => $r['valid'] === true ? null : 'not valid');
 expectOk('vat', fn () => $parse->vat('DE136695976'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE') ? null : 'not valid DE');
 expectOk('card', fn () => $parse->card('00 0000'), fn ($r) => $r['bin'] === '000000' && $r['prefix'] === null ? null : 'BIN echo or prefix mismatch');
-expectOk('iban', fn () => $parse->iban('DE89370400440532013000'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE' && $r['bank'] === '37040044') ? null : 'not valid DE');
-expectOk('iban junk', fn () => $parse->iban('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
+expectOk('bank', fn () => $parse->bank('DE89370400440532013000'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE' && $r['bank'] === '37040044') ? null : 'not valid DE');
+expectOk('bank junk', fn () => $parse->bank('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
 expectOk('npi', fn () => $parse->npi('1881018208'), fn ($r) => ($r['valid'] === true && $r['registered'] === true) ? null : 'not registered');
 expectOk('npi junk', fn () => $parse->npi('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
 expectOk('phone', fn () => $parse->phone('+14155552671'), fn ($r) => $r['phone'] === '+14155552671' ? null : 'wrong phone');

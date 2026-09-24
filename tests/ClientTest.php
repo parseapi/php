@@ -11,6 +11,40 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
+	public function testBankChecksAndRawInputPassThroughUnchanged(): void
+	{
+		$fixture = json_decode(file_get_contents(__DIR__ . '/bank-fixtures.json'), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($fixture['records'] as $body) {
+			foreach ($fixture['inputs'] as $raw) {
+				$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
+				$this->assertSame($body, $client->bank($raw, deep: true));
+				$this->assertSame('https://api.parseapi.com/bank', $this->calls[0]['url']);
+				$this->assertSame('POST', $this->calls[0]['method']);
+				$this->assertSame(['iban' => $raw, 'deep' => true], json_decode($this->calls[0]['body'], true));
+				$this->assertSame('application/json', $this->calls[0]['headers']['Content-Type']);
+			}
+		}
+	}
+
+	public function testBankDomesticRequirementsAndPostRetry(): void
+	{
+		$payload = ['bank_name' => null, 'checks' => ['account_checksum' => 'not_supported', 'future' => 'future-state'], 'future' => true];
+		$encoded = json_encode($payload, JSON_THROW_ON_ERROR);
+		$client = $this->stubClient([[503, ['retry-after' => '0'], '{}'], [200, [], $encoded], [200, [], $encoded]], 1);
+		$routing = "\t011-000-015";
+		$account = " 00aB-%20\u{FEFF}";
+		$this->assertSame($payload, $client->bankUsAch($routing, $account));
+		$this->assertCount(2, $this->calls);
+		$this->assertSame($this->calls[0]['body'], $this->calls[1]['body']);
+		$this->assertSame('https://api.parseapi.com/bank', $this->calls[0]['url']);
+		$this->assertSame('POST', $this->calls[0]['method']);
+		$this->assertSame(['format' => 'us_ach', 'country' => 'US', 'routing' => $routing, 'account' => $account], json_decode($this->calls[0]['body'], true));
+		$this->assertSame($payload, $client->bankRequirements('US', 'future-format'));
+		$this->assertSame('https://api.parseapi.com/bank/requirements?country=US&format=future-format', $this->calls[2]['url']);
+		$this->assertSame('GET', $this->calls[2]['method']);
+		$this->assertNull($this->calls[2]['body']);
+	}
+
 	public function testPostalChoicesPreserveObservationWithoutInferringCity(): void
 	{
 		$choice = ['city' => 'SYDNEY', 'state' => 'NSW', 'state_name' => 'New South Wales', 'future' => true];
@@ -97,8 +131,8 @@ final class ClientTest extends TestCase
 		return new Client(
 			apiKey: 'test_key_123',
 			retries: $retries,
-			transport: function (string $url, array $headers) use (&$queue): array {
-				$this->calls[] = ['url' => $url, 'headers' => $headers];
+			transport: function (string $url, array $headers, string $method = 'GET', ?string $requestBody = null) use (&$queue): array {
+				$this->calls[] = ['url' => $url, 'headers' => $headers, 'method' => $method, 'body' => $requestBody];
 				if ($queue === null) {
 					return [200, [], '{}'];
 				}
@@ -170,7 +204,7 @@ final class ClientTest extends TestCase
 
 	public function testAdpOptionalDepth(): void
 	{
-		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["iban", ["DE89370400440532013000"], {"country": "DE"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["currency", ["USD"], {}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
+		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["bank", ["DE89370400440532013000"], {"country": "DE"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["currency", ["USD"], {}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
 		foreach ($rows as [$method, $args, $options]) {
 			$native = preg_replace_callback('/\.([a-z])/', fn ($m) => strtoupper($m[1]), $method);
 			$client = $this->stubClient();
@@ -182,7 +216,11 @@ final class ClientTest extends TestCase
 			parse_str($firstUrl['query'] ?? '', $firstQuery);
 			parse_str($deepUrl['query'] ?? '', $deepQuery);
 			$this->assertSame($firstUrl['path'], $deepUrl['path'], $method);
-			$this->assertSame([...$firstQuery, 'deep' => 'true'], $deepQuery, $method);
+			if ($method === 'bank') {
+				$this->assertSame([...json_decode($last[0]['body'], true), 'deep' => true], json_decode($last[1]['body'], true));
+			} else {
+				$this->assertSame([...$firstQuery, 'deep' => 'true'], $deepQuery, $method);
+			}
 		}
 	}
 
@@ -228,8 +266,8 @@ final class ClientTest extends TestCase
 			'company' => [fn (Client $p) => $p->company('732829320', country: 'FR', deep: true), 'https://api.parseapi.com/company/732829320?country=FR&deep=true'],
 			'email' => [fn (Client $p) => $p->email('a@b.com'), 'https://api.parseapi.com/email/a%40b.com'],
 			'vat' => [fn (Client $p) => $p->vat('DE136695976'), 'https://api.parseapi.com/vat/DE136695976'],
-			'iban' => [fn (Client $p) => $p->iban('DE89370400440532013000'), 'https://api.parseapi.com/iban/DE89370400440532013000'],
-			'iban country' => [fn (Client $p) => $p->iban('89370400440532013000', 'DE'), 'https://api.parseapi.com/iban/89370400440532013000?country=DE'],
+			'bank' => [fn (Client $p) => $p->bank('DE89370400440532013000'), 'https://api.parseapi.com/bank'],
+			'bank country' => [fn (Client $p) => $p->bank('89370400440532013000', 'DE'), 'https://api.parseapi.com/bank'],
 			'npi' => [fn (Client $p) => $p->npi('1881018208'), 'https://api.parseapi.com/npi/1881018208'],
 			'vat from deep' => [fn (Client $p) => $p->vat('DE136695976', from: 'IE6388047V', deep: true), 'https://api.parseapi.com/vat/DE136695976?deep=true&from=IE6388047V'],
 			'phone encodes plus' => [fn (Client $p) => $p->phone('+14155552671', deep: true), 'https://api.parseapi.com/phone/%2B14155552671?deep=true'],

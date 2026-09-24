@@ -225,9 +225,9 @@ final class Client
 		return $this->get('/vat/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'from' => $from]);
 	}
 
-	public function iban(string $iban, ?string $country = null, bool $deep = false): array
+	public function bank(string $iban, ?string $country = null, bool $deep = false): array
 	{
-		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country, 'deep' => $deep]);
+		return $this->get('/bank', [], [], array_filter(['iban' => $iban, 'country' => $country, 'deep' => $deep], static fn($value) => $value !== null));
 	}
 
 	/** Look up a 6-11 digit card prefix, preserving leading zeros. @param string $bin */
@@ -239,6 +239,18 @@ final class Client
 		return $this->get('/card/' . rawurlencode($bin));
 	}
 
+
+	/** US routing/account syntax only; not account or ACH eligibility verification. */
+	public function bankUsAch(string $routing, string $account): array
+	{
+		return $this->get('/bank', [], [], ['format' => 'us_ach', 'country' => 'US', 'routing' => $routing, 'account' => $account]);
+	}
+
+	/** Describe accepted fields and check scope, not directory completeness. */
+	public function bankRequirements(string $country, ?string $format = null): array
+	{
+		return $this->get('/bank/requirements', ['country' => $country, 'format' => $format]);
+	}
 
 	public function npi(string $npi, bool $deep = false, ?string $lang = null): array
 	{
@@ -476,7 +488,7 @@ final class Client
 		return !$this->timeoutExplicit && str_starts_with($path, '/stack/') ? 35.0 : $this->timeout;
 	}
 
-	private function get(string $path, array $query = [], array $headers = []): array
+	private function get(string $path, array $query = [], array $headers = [], ?array $json = null): array
 	{
 		$retries = $this->retriesFor($path, $query);
 		$clean = [];
@@ -497,10 +509,12 @@ final class Client
 			['Parse-Version' => self::API_VERSION],
 		);
 
+		$requestBody = $json === null ? null : json_encode($json, JSON_THROW_ON_ERROR);
+		if ($requestBody !== null) $requestHeaders['Content-Type'] = 'application/json';
 		$attempt = 0;
 		while (true) {
 			try {
-				[$status, $responseHeaders, $body] = $this->execute($url, $requestHeaders, $this->timeoutFor($path));
+				[$status, $responseHeaders, $body] = $this->execute($url, $requestHeaders, $this->timeoutFor($path), $requestBody);
 			} catch (\RuntimeException $e) {
 				if ($attempt < $retries) {
 					usleep((int) ($this->retryDelay($attempt, null) * 1_000_000));
@@ -532,10 +546,10 @@ final class Client
 	}
 
 	/** @return array{0:int,1:array,2:string} status, lowercased headers, body */
-	private function execute(string $url, array $headers, float $timeout): array
+	private function execute(string $url, array $headers, float $timeout, ?string $requestBody = null): array
 	{
 		if ($this->transport !== null) {
-			return ($this->transport)($url, $headers);
+			return $requestBody === null ? ($this->transport)($url, $headers) : ($this->transport)($url, $headers, 'POST', $requestBody);
 		}
 
 		if ($this->curl === null) {
@@ -562,6 +576,10 @@ final class Client
 			},
 		]);
 
+		if ($requestBody !== null) {
+			curl_setopt($this->curl, CURLOPT_POST, true);
+			curl_setopt($this->curl, CURLOPT_POSTFIELDS, $requestBody);
+		}
 		$body = curl_exec($this->curl);
 		if ($body === false) {
 			throw new \RuntimeException('parseapi: ' . curl_error($this->curl), curl_errno($this->curl));
