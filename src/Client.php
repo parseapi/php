@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.4.0';
+	public const VERSION = '1.6.0';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -377,15 +377,50 @@ final class Client
 		return $this->get('/name/' . rawurlencode($name), ['country' => $country, 'deep' => $deep, 'name_locale' => $nameLocale]);
 	}
 
-	/** Current local time, UTC by default. With to, offsetless at is source wall time. */
-	public function time(?string $timezone = null, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null): array
+	/** Current local time, UTC by default. With to or targets, offsetless at is source wall time. */
+	public function time(?string $timezone = null, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null, ?string $disambiguation = null, ?array $targets = null, ?string $ip = null, ?string $city = null, ?string $country = null, ?string $state = null, ?string $iata = null, ?string $icao = null, ?string $unlocode = null, ?string $address = null): array
 	{
-		return $this->get($timezone === null ? '/time' : '/time/' . rawurlencode($timezone), ['at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang]);
+		if ($timezone !== null && in_array(strtolower(trim($timezone)), ['zones', 'help'], true)) throw new \InvalidArgumentException('Time source must be an IANA timezone ID. Use timezone discovery to list IDs.');
+		$source = self::timeSource($timezone, ['ip' => $ip, 'city' => $city, 'country' => $country, 'state' => $state, 'iata' => $iata, 'icao' => $icao, 'unlocode' => $unlocode, 'address' => $address]);
+		return $this->get($timezone === null ? '/time' : '/time/' . rawurlencode($timezone), $source + ['at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang, 'disambiguation' => $disambiguation, 'targets' => self::timeTargets($targets, $to)]);
 	}
 
-	public function timeAt(float $lat, float $lon, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null): array
+	public function timeAt(float $lat, float $lon, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null, ?string $disambiguation = null, ?array $targets = null): array
 	{
-		return $this->get('/time', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang]);
+		return $this->get('/time', ['lat' => $lat, 'lon' => $lon, 'at' => $at, 'to' => $to, 'deep' => $deep, 'lang' => $lang, 'disambiguation' => $disambiguation, 'targets' => self::timeTargets($targets, $to)]);
+	}
+
+	/** Search serving timezone IDs. Omit query to list all. */
+	public function timeZones(?string $query = null, ?string $country = null, ?string $area = null, ?string $offset = null, ?string $abbreviation = null, ?bool $dst = null, ?bool $observesDst = null, ?string $at = null, bool $details = false, ?string $sort = null): array
+	{
+		return $this->get('/time/zones', ['q' => $query, 'country' => $country, 'area' => $area, 'offset' => $offset, 'abbreviation' => $abbreviation, 'dst' => $dst === null ? null : ($dst ? 'true' : 'false'), 'observes_dst' => $observesDst === null ? null : ($observesDst ? 'true' : 'false'), 'at' => $at, 'details' => $details, 'sort' => $sort]);
+	}
+
+	private static function timeSource(?string $timezone, array $values): array
+	{
+		$primary = array_filter(array_intersect_key($values, array_flip(['ip', 'city', 'iata', 'icao', 'unlocode', 'address'])), fn($value) => $value !== null);
+		$present = array_filter($values, fn($value) => $value !== null);
+		if (array_filter($present, fn($value) => trim($value) === '') || ($timezone !== null && $present) || count($primary) > 1 ||
+			($values['country'] !== null && $primary && $values['city'] === null && $values['address'] === null) ||
+			($values['state'] !== null && (($values['city'] === null && $values['address'] === null) || $values['country'] === null)) ||
+			($values['address'] !== null && $values['country'] === null)) {
+			throw new \InvalidArgumentException('Pass one Time source, using country only with city or address and state only with city or address and country.');
+		}
+		return $values;
+	}
+
+	private static function timeTargets(?array $targets, ?string $to): ?string
+	{
+		if ($targets === null) return null;
+		if ($to !== null || count($targets) < 1 || count($targets) > 10) {
+			throw new \InvalidArgumentException('Time targets requires 1 to 10 timezone IDs and cannot be combined with to.');
+		}
+		foreach ($targets as $zone) {
+			if (!is_string($zone) || trim($zone) === '' || str_contains($zone, ',')) {
+				throw new \InvalidArgumentException('Time targets requires 1 to 10 timezone IDs and cannot be combined with to.');
+			}
+		}
+		return implode(',', $targets);
 	}
 
 	public function timezone(string $id, ?string $at = null, ?string $to = null, bool $deep = false, ?string $lang = null): array

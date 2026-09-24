@@ -11,6 +11,16 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
+	public function testTimeReservedSourceCannotReturnDiscovery(): void
+	{
+		$client = $this->stubClient([]);
+		foreach (['zones', 'help', ' ZONES ', 'Help'] as $zone) {
+			try { $client->time($zone); $this->fail('Reserved source was accepted'); }
+			catch (\InvalidArgumentException $error) { $this->assertStringContainsString('IANA timezone ID', $error->getMessage()); }
+		}
+		$this->assertCount(0, $this->calls);
+	}
+
 	public function testPostalChoicesPreserveObservationWithoutInferringCity(): void
 	{
 		$choice = ['city' => 'SYDNEY', 'state' => 'NSW', 'state_name' => 'New South Wales', 'future' => true];
@@ -250,6 +260,18 @@ final class ClientTest extends TestCase
 			'currencyRate date amount' => [fn (Client $p) => $p->currencyRate('USD', 'JPY', date: '2026-08-28', amount: 100), 'https://api.parseapi.com/currency/USD/JPY?date=2026-08-28&amount=100'],
 			'language' => [fn (Client $p) => $p->language('en'), 'https://api.parseapi.com/language/en'],
 			'name encodes spaces' => [fn (Client $p) => $p->name('Smith, John'), 'https://api.parseapi.com/name/Smith%2C%20John'],
+			'time compatible' => [fn (Client $p) => $p->time('America/New_York', at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'compatible'), 'https://api.parseapi.com/time/America%2FNew_York?at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=compatible'],
+			'time coordinates compatible' => [fn (Client $p) => $p->timeAt(40.71, -74.01, at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'compatible'), 'https://api.parseapi.com/time?lat=40.71&lon=-74.01&at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=compatible'],
+			'time earlier' => [fn (Client $p) => $p->time('America/New_York', at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'earlier'), 'https://api.parseapi.com/time/America%2FNew_York?at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=earlier'],
+			'time coordinates earlier' => [fn (Client $p) => $p->timeAt(40.71, -74.01, at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'earlier'), 'https://api.parseapi.com/time?lat=40.71&lon=-74.01&at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=earlier'],
+			'time later' => [fn (Client $p) => $p->time('America/New_York', at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'later'), 'https://api.parseapi.com/time/America%2FNew_York?at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=later'],
+			'time coordinates later' => [fn (Client $p) => $p->timeAt(40.71, -74.01, at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'later'), 'https://api.parseapi.com/time?lat=40.71&lon=-74.01&at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=later'],
+			'time reject' => [fn (Client $p) => $p->time('America/New_York', at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'reject'), 'https://api.parseapi.com/time/America%2FNew_York?at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=reject'],
+			'time coordinates reject' => [fn (Client $p) => $p->timeAt(40.71, -74.01, at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'reject'), 'https://api.parseapi.com/time?lat=40.71&lon=-74.01&at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=reject'],
+			'time zones all' => [fn (Client $p) => $p->timeZones(), 'https://api.parseapi.com/time/zones'],
+			'time zones search' => [fn (Client $p) => $p->timeZones('Europe'), 'https://api.parseapi.com/time/zones?q=Europe'],
+			'time targets' => [fn (Client $p) => $p->time('UTC', targets: ['UTC', 'Asia/Tokyo', 'UTC']), 'https://api.parseapi.com/time/UTC?targets=UTC%2CAsia%2FTokyo%2CUTC'],
+			'time coordinate targets' => [fn (Client $p) => $p->timeAt(0, 0, targets: ['UTC', 'Asia/Tokyo', 'UTC']), 'https://api.parseapi.com/time?lat=0&lon=0&targets=UTC%2CAsia%2FTokyo%2CUTC'],
 			'time UTC' => [fn (Client $p) => $p->time(), 'https://api.parseapi.com/time'],
 			'time conversion' => [fn (Client $p) => $p->time('America/New_York', at: '2026-09-05T15:00', to: 'Europe/London'), 'https://api.parseapi.com/time/America%2FNew_York?at=2026-09-05T15%3A00&to=Europe%2FLondon'],
 			'time coordinates' => [fn (Client $p) => $p->timeAt(0, 0, at: '1970-01-01T00:00:00Z', to: 'UTC'), 'https://api.parseapi.com/time?lat=0&lon=0&at=1970-01-01T00%3A00%3A00Z&to=UTC'],

@@ -1139,6 +1139,56 @@
             "name": "lang",
             "type": "?string",
             "default": null
+          },
+          {
+            "name": "disambiguation",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "targets",
+            "type": "?array",
+            "default": null
+          },
+          {
+            "name": "ip",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "city",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "country",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "state",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "iata",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "icao",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "unlocode",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "address",
+            "type": "?string",
+            "default": null
           }
         ],
         "return": "array"
@@ -1170,6 +1220,71 @@
           },
           {
             "name": "lang",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "disambiguation",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "targets",
+            "type": "?array",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "timeZones": {
+        "parameters": [
+          {
+            "name": "query",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "country",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "area",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "offset",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "abbreviation",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "dst",
+            "type": "?bool",
+            "default": null
+          },
+          {
+            "name": "observesDst",
+            "type": "?bool",
+            "default": null
+          },
+          {
+            "name": "at",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "details",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "sort",
             "type": "?string",
             "default": null
           }
