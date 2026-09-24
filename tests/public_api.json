@@ -103,20 +103,6 @@
         ],
         "return": "array"
       },
-      "bin": {
-        "parameters": [
-          {
-            "name": "bin",
-            "type": "string"
-          },
-          {
-            "name": "deep",
-            "type": "bool",
-            "default": false
-          }
-        ],
-        "return": "array"
-      },
       "bloc": {
         "parameters": [
           {
@@ -150,6 +136,15 @@
             "name": "country",
             "type": "?string",
             "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "card": {
+        "parameters": [
+          {
+            "name": "bin",
+            "type": "mixed"
           }
         ],
         "return": "array"
@@ -1337,6 +1332,11 @@
             "name": "requestId",
             "type": "?string",
             "default": null
+          },
+          {
+            "name": "retryAfter",
+            "type": "?string",
+            "default": null
           }
         ],
         "return": ""
@@ -1352,6 +1352,10 @@
         "readonly": true
       },
       "requestId": {
+        "type": "?string",
+        "readonly": true
+      },
+      "retryAfter": {
         "type": "?string",
         "readonly": true
       },

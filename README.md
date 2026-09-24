@@ -53,7 +53,7 @@ $parse->ipSelf();
 $parse->email('hello@gmail.com');
 $parse->vat('DE136695976');
 $parse->iban('DE89370400440532013000');
-$parse->bin('424242');
+$parse->card('424242');
 $parse->npi('1881018208');
 $parse->phone('+14155552671');
 $parse->carrier('+14155552671');
@@ -246,6 +246,8 @@ Ordinary lookups retry network errors and HTTP 429, 500, 502, 503, and 504 up to
 
 Pass `retries: 0` to make every lookup a single attempt. An explicit count such as `retries: 2` applies to every lookup, including paid ones. A retried request can count toward usage even when the first response was lost. Omit `retries` or pass `null` to use the defaults above.
 
+Automatic retries wait at most five seconds per attempt. A longer valid `Retry-After` returns the original API error immediately without retrying early. Read `retryAfter` on the error for the original header, or null when absent.
+
 Reuse one client for successive lookups. Call `$parse->close()` to release its connection when finished. A later lookup opens a new connection.
 
 Network failures throw `RuntimeException`. Invalid JSON throws `JsonException`. A response that decodes to a scalar instead of an object or array throws `UnexpectedValueException`.
@@ -258,7 +260,26 @@ Requires PHP 8.1 or later with ext-curl. No Composer dependencies.
 
 Full field reference for every endpoint: [parseapi.com/docs](https://parseapi.com/docs)
 
-BIN lookup accepts 6-11 digits as a string, including leading zeros. Spaces and hyphens are accepted. `prefix` is the actual longest match and can be shorter than the input. Unknown reference fields are null. `deep` adds an empty object on every plan.
+## Card
+
+Card looks up issuer, network and type from a BIN/IIN. It accepts 6-11 digits as a string, including leading zeros. Spaces and hyphens are accepted. `prefix` is the actual longest match and can be shorter than the input. Unknown reference fields are null. The client rejects malformed or full card numbers before sending a request. Valid input is forwarded unchanged.
+
+Compare `prefix` with the normalized response `bin`. A matched row can still have all metadata unknown. Keep unknown prepaid status separate from true and false.
+
+```php
+$card = $parse->card('4242 42-99');
+$match = match (true) {
+    $card['prefix'] === null => 'No reference match',
+    $card['prefix'] === $card['bin'] => 'Exact prefix match',
+    default => 'Broader prefix match',
+};
+$prepaid = match ($card['prepaid']) {
+    null => 'Unknown prepaid status',
+    true => 'Prepaid',
+    false => 'Not prepaid',
+};
+echo "$match, $prepaid\n";
+```
 
 
 ## Optional detail

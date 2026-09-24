@@ -230,10 +230,13 @@ final class Client
 		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country, 'deep' => $deep]);
 	}
 
-	/** Look up a 6-11 digit card prefix, preserving leading zeros. */
-	public function bin(string $bin, bool $deep = false): array
+	/** Look up a 6-11 digit card prefix, preserving leading zeros. @param string $bin */
+	public function card(mixed $bin): array
 	{
-		return $this->get('/bin/' . rawurlencode($bin), ['deep' => $deep]);
+		if (!is_string($bin) || strlen($bin) > 64 || preg_match('/\A[0-9]{6,11}\z/', str_replace([" ", "\t", "\r", "\n", "-"], '', $bin)) !== 1) {
+			throw new \InvalidArgumentException('parseapi: Card requires a string containing 6 to 11 digits. Send a prefix only.');
+		}
+		return $this->get('/card/' . rawurlencode($bin));
 	}
 
 
@@ -516,12 +519,15 @@ final class Client
 			}
 
 			if (in_array($status, self::RETRY_STATUS, true) && $attempt < $retries) {
-				usleep((int) ($this->retryDelay($attempt, $responseHeaders['retry-after'] ?? null) * 1_000_000));
-				$attempt++;
-				continue;
+				$delay = $this->retryDelay($attempt, $responseHeaders['retry-after'] ?? null);
+				if ($delay !== null) {
+					usleep((int) ($delay * 1_000_000));
+					$attempt++;
+					continue;
+				}
 			}
 
-			throw $this->buildError($status, $body);
+			throw $this->buildError($status, $body, $responseHeaders['retry-after'] ?? null);
 		}
 	}
 
@@ -565,18 +571,21 @@ final class Client
 		return [$status, $responseHeaders, (string) $body];
 	}
 
-	private function retryDelay(int $attempt, ?string $retryAfter): float
+	private function retryDelay(int $attempt, ?string $retryAfter): ?float
 	{
-		if ($retryAfter !== null && is_numeric($retryAfter) && (float) $retryAfter >= 0) {
-			return min((float) $retryAfter, self::RETRY_AFTER_CAP);
-		}
 		if ($retryAfter !== null) {
+			$retryAfter = trim($retryAfter);
+			if (preg_match('/\A[0-9]+(?:\.[0-9]+)?\z/', $retryAfter) === 1) {
+				$seconds = (float) $retryAfter;
+				return $seconds > self::RETRY_AFTER_CAP ? null : $seconds;
+			}
 			$date = \DateTimeImmutable::createFromFormat('D, d M Y H:i:s \\G\\M\\T', $retryAfter, new \DateTimeZone('GMT'));
 			if ($date !== false) {
-				return min(max($date->getTimestamp() - time(), 0), self::RETRY_AFTER_CAP);
+				$delay = max($date->getTimestamp() - time(), 0);
+				return $delay > self::RETRY_AFTER_CAP ? null : (float) $delay;
 			}
 		}
-		return mt_rand() / mt_getrandmax() * 0.25 * (2 ** $attempt);
+		return mt_rand() / mt_getrandmax() * min(0.25 * (2 ** min($attempt, 16)), self::RETRY_AFTER_CAP);
 	}
 
 	private function retriesFor(string $path, array $query): int
@@ -590,7 +599,7 @@ final class Client
 		return $metered ? 0 : 2;
 	}
 
-	private function buildError(int $status, string $body): ParseAPIError
+	private function buildError(int $status, string $body, ?string $retryAfter = null): ParseAPIError
 	{
 		$parsed = json_decode($body, true);
 		if (!is_array($parsed)) {
@@ -602,6 +611,7 @@ final class Client
 			message: is_string($parsed['message'] ?? null) ? $parsed['message'] : "Request failed with status {$status}",
 			docs: is_string($parsed['docs'] ?? null) ? $parsed['docs'] : null,
 			requestId: is_string($parsed['request_id'] ?? null) ? $parsed['request_id'] : null,
+			retryAfter: $retryAfter,
 		);
 	}
 }

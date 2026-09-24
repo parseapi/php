@@ -74,11 +74,11 @@ final class ClientTest extends TestCase
 		}
 	}
 
-	public function testBinPreservesNullFalseAndPrefix(): void
+	public function testCardPreservesNullFalseAndPrefix(): void
 	{
 		$body = ['bin' => '00123456', 'prefix' => '001234', 'country' => null, 'issuer' => 'Fixture Bank', 'brand' => 'future-brand', 'type' => null, 'prepaid' => false, 'deep' => [], 'future' => true];
 		$client = $this->stubClient([[200, [], '{"bin":"00123456","prefix":"001234","country":null,"issuer":"Fixture Bank","brand":"future-brand","type":null,"prepaid":false,"deep":{},"future":true}']]);
-		$this->assertSame($body, $client->bin('00 1234-56', deep: true));
+		$this->assertSame($body, $client->card('00 1234-56'));
 	}
 
 	public function testPublicApiMatchesTheReviewedManifest(): void
@@ -189,8 +189,8 @@ final class ClientTest extends TestCase
 	public static function urlTable(): array
 	{
 		return [
-			'bin' => [fn (Client $p) => $p->bin('001234'), 'https://api.parseapi.com/bin/001234'],
-			'bin deep' => [fn (Client $p) => $p->bin('00 1234-56', deep: true), 'https://api.parseapi.com/bin/00%201234-56?deep=true'],
+			'card' => [fn (Client $p) => $p->card('001234'), 'https://api.parseapi.com/card/001234'],
+			'card separators' => [fn (Client $p) => $p->card('00 1234-56'), 'https://api.parseapi.com/card/00%201234-56'],
 			'dns' => [fn (Client $p) => $p->dns('example.com'), 'https://api.parseapi.com/dns/example.com'],
 			'dns type' => [fn (Client $p) => $p->dns('_dmarc.bücher.example.', type: 'txt'), 'https://api.parseapi.com/dns/_dmarc.b%C3%BCcher.example.?type=txt'],
 			'naics' => [fn (Client $p) => $p->naics('31-33'), 'https://api.parseapi.com/naics/31-33'],
@@ -450,13 +450,13 @@ final class ClientTest extends TestCase
 		}
 	}
 
-	public function testRetryAfterSupportsHttpDatesAndCapsDelays(): void
+	public function testRetryAfterSupportsHttpDatesAndDeclinesLongDelays(): void
 	{
 		$client = new Client('k');
 		$delay = new \ReflectionMethod(Client::class, 'retryDelay');
 		$this->assertSame(0.0, $delay->invoke($client, 0, 'Sun, 06 Nov 1994 08:49:37 GMT'));
-		$this->assertSame(5.0, $delay->invoke($client, 0, gmdate('D, d M Y H:i:s \\G\\M\\T', time() + 60)));
-		$this->assertSame(5.0, $delay->invoke($client, 0, '100'));
+		$this->assertNull($delay->invoke($client, 0, gmdate('D, d M Y H:i:s \\G\\M\\T', time() + 60)));
+		$this->assertNull($delay->invoke($client, 0, '100'));
 	}
 
 	public function testRedirectIsAnErrorWithoutForwardingTheKey(): void
