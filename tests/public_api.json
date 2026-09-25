@@ -1331,6 +1331,20 @@
                 ],
                 "return": "array"
             },
+            "vehicle": {
+                "parameters": [
+                    {
+                        "name": "vin",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
             "vin": {
                 "parameters": [
                     {

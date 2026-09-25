@@ -279,6 +279,8 @@ final class ClientTest extends TestCase
 			'mac' => [fn (Client $p) => $p->mac('00:1B:63:84:45:E6'), 'https://api.parseapi.com/mac/00%3A1B%3A63%3A84%3A45%3AE6'],
 			'mx' => [fn (Client $p) => $p->mx('example.com'), 'https://api.parseapi.com/mx/example.com'],
 			'useragent' => [fn (Client $p) => $p->useragent('TestUA/1.0'), 'https://api.parseapi.com/useragent'],
+			'vehicle' => [fn (Client $p) => $p->vehicle('1HGCM82633A004352'), 'https://api.parseapi.com/vehicle/1HGCM82633A004352'],
+			'vehicle deep' => [fn (Client $p) => $p->vehicle('1HGCM82633A004352', true), 'https://api.parseapi.com/vehicle/1HGCM82633A004352?deep=true'],
 			'vin' => [fn (Client $p) => $p->vin('1HGCM82633A004352'), 'https://api.parseapi.com/vin/1HGCM82633A004352'],
 			'vin deep' => [fn (Client $p) => $p->vin('1HGCM82633A004352', true), 'https://api.parseapi.com/vin/1HGCM82633A004352?deep=true'],
 			'tariff' => [fn (Client $p) => $p->tariff('8471.30.01.00', deep: true, origin: 'CN'), 'https://api.parseapi.com/tariff/8471.30.01.00?deep=true&origin=CN'],

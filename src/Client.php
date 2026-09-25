@@ -335,6 +335,11 @@ final class Client
 		return $this->get('/useragent', ['deep' => $deep], ['User-Agent' => $ua]);
 	}
 
+	public function vehicle(string $vin, bool $deep = false): array
+	{
+		return $this->get('/vehicle/' . rawurlencode($vin), ['deep' => $deep]);
+	}
+
 	public function vin(string $vin, bool $deep = false): array
 	{
 		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
