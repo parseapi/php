@@ -252,9 +252,9 @@ final class Client
 		return $this->get('/bank/requirements', ['country' => $country, 'format' => $format]);
 	}
 
-	public function npi(string $npi, bool $deep = false, ?string $lang = null): array
+	public function provider(string $npi, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
+		return $this->get('/provider/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
 	}
 
 	/**
