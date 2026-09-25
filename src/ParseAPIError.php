@@ -15,6 +15,7 @@ class ParseAPIError extends \Exception
 		string $message,
 		public readonly ?string $docs = null,
 		public readonly ?string $requestId = null,
+		public readonly ?string $retryAfter = null,
 	) {
 		parent::__construct($message);
 	}

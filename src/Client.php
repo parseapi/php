@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.7.0';
+	public const VERSION = '1.8.0';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -230,16 +230,50 @@ final class Client
 		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country, 'deep' => $deep]);
 	}
 
-	/** Look up a 6-11 digit card prefix, preserving leading zeros. */
+
 	public function bin(string $bin, bool $deep = false): array
 	{
 		return $this->get('/bin/' . rawurlencode($bin), ['deep' => $deep]);
 	}
 
 
+
 	public function npi(string $npi, bool $deep = false, ?string $lang = null): array
 	{
 		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
+	}
+
+
+	public function bank(string $iban, ?string $country = null, bool $deep = false): array
+	{
+		return $this->get('/bank', [], [], array_filter(['iban' => $iban, 'country' => $country, 'deep' => $deep], static fn($value) => $value !== null));
+	}
+
+	/** Look up a 2-11 digit card prefix, preserving leading zeros. @param string $bin */
+	public function card(mixed $bin, bool $deep = false): array
+	{
+		if (!is_string($bin) || strlen($bin) > 64 || preg_match('/\A[0-9]{2,11}\z/', str_replace([" ", "\t", "\r", "\n", "-"], '', $bin)) !== 1) {
+			throw new \InvalidArgumentException('parseapi: Card requires a string containing 2 to 11 digits. Send a prefix only.');
+		}
+		return $this->get('/card/' . rawurlencode($bin), ['deep' => $deep]);
+	}
+
+
+	/** US routing/account syntax only; not account or ACH eligibility verification. */
+	public function bankUsAch(string $routing, string $account): array
+	{
+		return $this->get('/bank', [], [], ['format' => 'us_ach', 'country' => 'US', 'routing' => $routing, 'account' => $account]);
+	}
+
+	/** Describe accepted fields and check scope, not directory completeness. */
+	public function bankRequirements(string $country, ?string $format = null): array
+	{
+		return $this->get('/bank/requirements', ['country' => $country, 'format' => $format]);
+	}
+
+	public function provider(string $npi, bool $deep = false, ?string $lang = null): array
+	{
+		return $this->get('/provider/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
 	}
 
 	/**
@@ -320,21 +354,34 @@ final class Client
 		return $this->get('/useragent', ['deep' => $deep], ['User-Agent' => $ua]);
 	}
 
+	public function vehicle(string $vin, bool $deep = false): array
+	{
+		return $this->get('/vehicle/' . rawurlencode($vin), ['deep' => $deep]);
+	}
+
 	public function vin(string $vin, bool $deep = false): array
 	{
 		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
 	}
 
 	/** US NAICS 2022 definition and hierarchy. */
+	/** Compatibility name for industry. */
 	public function naics(string $code, bool $deep = false): array
+	{ return $this->industry($code, $deep); }
+
+	/** Compatibility name for industrySearch. */
+	public function naicsSearch(string $query, ?int $limit = null, bool $deep = false): array
+	{ return $this->industrySearch($query, $limit, $deep); }
+
+	public function industry(string $code, bool $deep = false): array
 	{
-		return $this->get('/naics/' . rawurlencode($code), ['deep' => $deep]);
+		return $this->get('/industry/' . rawurlencode($code), ['deep' => $deep]);
 	}
 
 	/** Keyword search. Limit defaults to 10 and accepts 1-50. */
-	public function naicsSearch(string $query, ?int $limit = null, bool $deep = false): array
+	public function industrySearch(string $query, ?int $limit = null, bool $deep = false): array
 	{
-		return $this->get('/naics', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
+		return $this->get('/industry', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
 	}
 
 	/**
@@ -516,7 +563,7 @@ final class Client
 		return !$this->timeoutExplicit && str_starts_with($path, '/stack/') ? 35.0 : $this->timeout;
 	}
 
-	private function get(string $path, array $query = [], array $headers = []): array
+	private function get(string $path, array $query = [], array $headers = [], ?array $json = null): array
 	{
 		$retries = $this->retriesFor($path, $query);
 		$clean = [];
@@ -537,10 +584,12 @@ final class Client
 			['Parse-Version' => self::API_VERSION],
 		);
 
+		$requestBody = $json === null ? null : json_encode($json, JSON_THROW_ON_ERROR);
+		if ($requestBody !== null) $requestHeaders['Content-Type'] = 'application/json';
 		$attempt = 0;
 		while (true) {
 			try {
-				[$status, $responseHeaders, $body] = $this->execute($url, $requestHeaders, $this->timeoutFor($path));
+				[$status, $responseHeaders, $body] = $this->execute($url, $requestHeaders, $this->timeoutFor($path), $requestBody);
 			} catch (\RuntimeException $e) {
 				if ($attempt < $retries) {
 					usleep((int) ($this->retryDelay($attempt, null) * 1_000_000));
@@ -559,20 +608,23 @@ final class Client
 			}
 
 			if (in_array($status, self::RETRY_STATUS, true) && $attempt < $retries) {
-				usleep((int) ($this->retryDelay($attempt, $responseHeaders['retry-after'] ?? null) * 1_000_000));
-				$attempt++;
-				continue;
+				$delay = $this->retryDelay($attempt, $responseHeaders['retry-after'] ?? null);
+				if ($delay !== null) {
+					usleep((int) ($delay * 1_000_000));
+					$attempt++;
+					continue;
+				}
 			}
 
-			throw $this->buildError($status, $body);
+			throw $this->buildError($status, $body, $responseHeaders['retry-after'] ?? null);
 		}
 	}
 
 	/** @return array{0:int,1:array,2:string} status, lowercased headers, body */
-	private function execute(string $url, array $headers, float $timeout): array
+	private function execute(string $url, array $headers, float $timeout, ?string $requestBody = null): array
 	{
 		if ($this->transport !== null) {
-			return ($this->transport)($url, $headers);
+			return $requestBody === null ? ($this->transport)($url, $headers) : ($this->transport)($url, $headers, 'POST', $requestBody);
 		}
 
 		if ($this->curl === null) {
@@ -599,6 +651,10 @@ final class Client
 			},
 		]);
 
+		if ($requestBody !== null) {
+			curl_setopt($this->curl, CURLOPT_POST, true);
+			curl_setopt($this->curl, CURLOPT_POSTFIELDS, $requestBody);
+		}
 		$body = curl_exec($this->curl);
 		if ($body === false) {
 			throw new \RuntimeException('parseapi: ' . curl_error($this->curl), curl_errno($this->curl));
@@ -608,18 +664,21 @@ final class Client
 		return [$status, $responseHeaders, (string) $body];
 	}
 
-	private function retryDelay(int $attempt, ?string $retryAfter): float
+	private function retryDelay(int $attempt, ?string $retryAfter): ?float
 	{
-		if ($retryAfter !== null && is_numeric($retryAfter) && (float) $retryAfter >= 0) {
-			return min((float) $retryAfter, self::RETRY_AFTER_CAP);
-		}
 		if ($retryAfter !== null) {
+			$retryAfter = trim($retryAfter);
+			if (preg_match('/\A[0-9]+(?:\.[0-9]+)?\z/', $retryAfter) === 1) {
+				$seconds = (float) $retryAfter;
+				return $seconds > self::RETRY_AFTER_CAP ? null : $seconds;
+			}
 			$date = \DateTimeImmutable::createFromFormat('D, d M Y H:i:s \\G\\M\\T', $retryAfter, new \DateTimeZone('GMT'));
 			if ($date !== false) {
-				return min(max($date->getTimestamp() - time(), 0), self::RETRY_AFTER_CAP);
+				$delay = max($date->getTimestamp() - time(), 0);
+				return $delay > self::RETRY_AFTER_CAP ? null : (float) $delay;
 			}
 		}
-		return mt_rand() / mt_getrandmax() * 0.25 * (2 ** $attempt);
+		return mt_rand() / mt_getrandmax() * min(0.25 * (2 ** min($attempt, 16)), self::RETRY_AFTER_CAP);
 	}
 
 	private function retriesFor(string $path, array $query): int
@@ -633,7 +692,7 @@ final class Client
 		return $metered ? 0 : 2;
 	}
 
-	private function buildError(int $status, string $body): ParseAPIError
+	private function buildError(int $status, string $body, ?string $retryAfter = null): ParseAPIError
 	{
 		$parsed = json_decode($body, true);
 		if (!is_array($parsed)) {
@@ -645,6 +704,7 @@ final class Client
 			message: is_string($parsed['message'] ?? null) ? $parsed['message'] : "Request failed with status {$status}",
 			docs: is_string($parsed['docs'] ?? null) ? $parsed['docs'] : null,
 			requestId: is_string($parsed['request_id'] ?? null) ? $parsed['request_id'] : null,
+			retryAfter: $retryAfter,
 		);
 	}
 }

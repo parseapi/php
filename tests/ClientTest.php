@@ -32,6 +32,40 @@ final class ClientTest extends TestCase
 		}
 	}
 
+	public function testBankChecksAndRawInputPassThroughUnchanged(): void
+	{
+		$fixture = json_decode(file_get_contents(__DIR__ . '/bank-fixtures.json'), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($fixture['records'] as $body) {
+			foreach ($fixture['inputs'] as $raw) {
+				$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
+				$this->assertSame($body, $client->bank($raw, deep: true));
+				$this->assertSame('https://api.parseapi.com/bank', $this->calls[0]['url']);
+				$this->assertSame('POST', $this->calls[0]['method']);
+				$this->assertSame(['iban' => $raw, 'deep' => true], json_decode($this->calls[0]['body'], true));
+				$this->assertSame('application/json', $this->calls[0]['headers']['Content-Type']);
+			}
+		}
+	}
+
+	public function testBankDomesticRequirementsAndPostRetry(): void
+	{
+		$payload = ['bank_name' => null, 'checks' => ['account_checksum' => 'not_supported', 'future' => 'future-state'], 'future' => true];
+		$encoded = json_encode($payload, JSON_THROW_ON_ERROR);
+		$client = $this->stubClient([[503, ['retry-after' => '0'], '{}'], [200, [], $encoded], [200, [], $encoded]], 1);
+		$routing = "\t011-000-015";
+		$account = " 00aB-%20\u{FEFF}";
+		$this->assertSame($payload, $client->bankUsAch($routing, $account));
+		$this->assertCount(2, $this->calls);
+		$this->assertSame($this->calls[0]['body'], $this->calls[1]['body']);
+		$this->assertSame('https://api.parseapi.com/bank', $this->calls[0]['url']);
+		$this->assertSame('POST', $this->calls[0]['method']);
+		$this->assertSame(['format' => 'us_ach', 'country' => 'US', 'routing' => $routing, 'account' => $account], json_decode($this->calls[0]['body'], true));
+		$this->assertSame($payload, $client->bankRequirements('US', 'future-format'));
+		$this->assertSame('https://api.parseapi.com/bank/requirements?country=US&format=future-format', $this->calls[2]['url']);
+		$this->assertSame('GET', $this->calls[2]['method']);
+		$this->assertNull($this->calls[2]['body']);
+	}
+
 	public function testStackPreservesNullEmptyAndCoreVersions(): void
 	{
 		$records = json_decode('[{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":null,"scope":"homepage","pages":0,"partial":null,"cms":null,"servers":null,"frameworks":null,"ecommerce":null,"analytics":null,"chat":null,"payments":null,"hosting":null,"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"homepage","pages":1,"partial":true,"cms":[],"servers":[],"frameworks":[],"ecommerce":[],"analytics":[],"chat":[],"payments":[],"hosting":[],"deep":{},"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"homepage","pages":1,"partial":true,"cms":[{"technology":"wordpress","name":"WordPress","version":"6.8.2"}],"servers":[{"technology":"nginx","name":"nginx","version":null}],"frameworks":[{"technology":"react","name":"React","version":null}],"ecommerce":[],"analytics":[],"chat":[],"payments":[],"hosting":[],"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"site","pages":6,"partial":false,"cms":[{"technology":"wordpress","name":"WordPress","version":"6.8.2"},{"technology":"ghost","name":"Ghost","version":null}],"servers":[{"technology":"nginx","name":"nginx","version":null},{"technology":"apache","name":"Apache","version":null}],"frameworks":[{"technology":"nextjs","name":"Next.js","version":"15.0.0","future":true},{"technology":"react","name":"React","version":null}],"ecommerce":[{"technology":"woocommerce","name":"WooCommerce","version":null}],"analytics":[{"technology":"google-analytics","name":"Google Analytics","version":null}],"chat":[{"technology":"intercom","name":"Intercom","version":null}],"payments":[{"technology":"stripe","name":"Stripe","version":null}],"hosting":[{"technology":"vercel","name":"Vercel","version":null}],"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":"2026-09-21T12:00:00Z","scope":"site","pages":3,"partial":true,"cms":[],"servers":[],"frameworks":[{"technology":"nextjs","name":"Next.js","version":null,"future":true}],"ecommerce":[],"analytics":[],"chat":[],"payments":[],"hosting":[],"deep":{},"future":true},{"domain":"xn--bcher-kva.example","url":"https://xn--bcher-kva.example/","checked_at":null,"scope":"site","pages":0,"partial":null,"cms":null,"servers":null,"frameworks":null,"ecommerce":null,"analytics":null,"chat":null,"payments":null,"hosting":null,"deep":{},"future":true}]', true, 512, JSON_THROW_ON_ERROR);
@@ -79,16 +113,16 @@ final class ClientTest extends TestCase
 		foreach ($records as $record) {
 			$body = ['q' => 'sofware', 'year' => 2022, 'country' => 'US', 'results' => [$record]];
 			$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
-			$this->assertSame($body, $client->naicsSearch('sofware'));
-			$this->assertSame('https://api.parseapi.com/naics?q=sofware', $this->calls[0]['url']);
+			$this->assertSame($body, $client->industrySearch('sofware'));
+			$this->assertSame('https://api.parseapi.com/industry?q=sofware', $this->calls[0]['url']);
 		}
 	}
 
-	public function testBinPreservesNullFalseAndPrefix(): void
+	public function testCardPreservesNullFalseAndPrefix(): void
 	{
 		$body = ['bin' => '00123456', 'prefix' => '001234', 'country' => null, 'issuer' => 'Fixture Bank', 'brand' => 'future-brand', 'type' => null, 'prepaid' => false, 'deep' => [], 'future' => true];
 		$client = $this->stubClient([[200, [], '{"bin":"00123456","prefix":"001234","country":null,"issuer":"Fixture Bank","brand":"future-brand","type":null,"prepaid":false,"deep":{},"future":true}']]);
-		$this->assertSame($body, $client->bin('00 1234-56', deep: true));
+		$this->assertSame($body, $client->card('00 1234-56'));
 	}
 
 	public function testPublicApiMatchesTheReviewedManifest(): void
@@ -107,8 +141,8 @@ final class ClientTest extends TestCase
 		return new Client(
 			apiKey: 'test_key_123',
 			retries: $retries,
-			transport: function (string $url, array $headers) use (&$queue): array {
-				$this->calls[] = ['url' => $url, 'headers' => $headers];
+			transport: function (string $url, array $headers, string $method = 'GET', ?string $requestBody = null) use (&$queue): array {
+				$this->calls[] = ['url' => $url, 'headers' => $headers, 'method' => $method, 'body' => $requestBody];
 				if ($queue === null) {
 					return [200, [], '{}'];
 				}
@@ -180,7 +214,7 @@ final class ClientTest extends TestCase
 
 	public function testAdpOptionalDepth(): void
 	{
-		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["iban", ["DE89370400440532013000"], {"country": "DE"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["currency", ["USD"], {}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
+		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["bank", ["DE89370400440532013000"], {"country": "DE"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["currency", ["USD"], {}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
 		foreach ($rows as [$method, $args, $options]) {
 			$native = preg_replace_callback('/\.([a-z])/', fn ($m) => strtoupper($m[1]), $method);
 			$client = $this->stubClient();
@@ -192,21 +226,25 @@ final class ClientTest extends TestCase
 			parse_str($firstUrl['query'] ?? '', $firstQuery);
 			parse_str($deepUrl['query'] ?? '', $deepQuery);
 			$this->assertSame($firstUrl['path'], $deepUrl['path'], $method);
-			$this->assertSame([...$firstQuery, 'deep' => 'true'], $deepQuery, $method);
+			if ($method === 'bank') {
+				$this->assertSame([...json_decode($last[0]['body'], true), 'deep' => true], json_decode($last[1]['body'], true));
+			} else {
+				$this->assertSame([...$firstQuery, 'deep' => 'true'], $deepQuery, $method);
+			}
 		}
 	}
 
 	public static function urlTable(): array
 	{
 		return [
-			'bin' => [fn (Client $p) => $p->bin('001234'), 'https://api.parseapi.com/bin/001234'],
-			'bin deep' => [fn (Client $p) => $p->bin('00 1234-56', deep: true), 'https://api.parseapi.com/bin/00%201234-56?deep=true'],
+			'card' => [fn (Client $p) => $p->card('001234'), 'https://api.parseapi.com/card/001234'],
+			'card separators' => [fn (Client $p) => $p->card('00 1234-56'), 'https://api.parseapi.com/card/00%201234-56'],
 			'dns' => [fn (Client $p) => $p->dns('example.com'), 'https://api.parseapi.com/dns/example.com'],
 			'dns type' => [fn (Client $p) => $p->dns('_dmarc.bücher.example.', type: 'txt'), 'https://api.parseapi.com/dns/_dmarc.b%C3%BCcher.example.?type=txt'],
-			'naics' => [fn (Client $p) => $p->naics('31-33'), 'https://api.parseapi.com/naics/31-33'],
-			'naics encoded' => [fn (Client $p) => $p->naics('54/11'), 'https://api.parseapi.com/naics/54%2F11'],
-			'naicsSearch' => [fn (Client $p) => $p->naicsSearch('coffee & tea', limit: 5), 'https://api.parseapi.com/naics?q=coffee+%26+tea&limit=5'],
-			'naicsSearch default' => [fn (Client $p) => $p->naicsSearch('plumbing'), 'https://api.parseapi.com/naics?q=plumbing'],
+			'naics' => [fn (Client $p) => $p->industry('31-33'), 'https://api.parseapi.com/industry/31-33'],
+			'naics encoded' => [fn (Client $p) => $p->industry('54/11'), 'https://api.parseapi.com/industry/54%2F11'],
+			'industrySearch' => [fn (Client $p) => $p->industrySearch('coffee & tea', limit: 5), 'https://api.parseapi.com/industry?q=coffee+%26+tea&limit=5'],
+			'industrySearch default' => [fn (Client $p) => $p->industrySearch('plumbing'), 'https://api.parseapi.com/industry?q=plumbing'],
 			'measure' => [fn (Client $p) => $p->measure('5 ft 11 in', to: 'cm', locale: 'en-US', system: 'us'), 'https://api.parseapi.com/measure/5%20ft%2011%20in?to=cm&locale=en-US&system=us'],
 			'measure compound' => [fn (Client $p) => $p->measure('1 kg/m^3', to: 'g/L'), 'https://api.parseapi.com/measure/1%20kg%2Fm%5E3?to=g%2FL'],
 			'measureUnits' => [fn (Client $p) => $p->measureUnits(query: 'US gallon', type: 'volume', unit: 'L'), 'https://api.parseapi.com/measure/units?q=US+gallon&type=volume&unit=L'],
@@ -238,9 +276,9 @@ final class ClientTest extends TestCase
 			'company' => [fn (Client $p) => $p->company('732829320', country: 'FR', deep: true), 'https://api.parseapi.com/company/732829320?country=FR&deep=true'],
 			'email' => [fn (Client $p) => $p->email('a@b.com'), 'https://api.parseapi.com/email/a%40b.com'],
 			'vat' => [fn (Client $p) => $p->vat('DE136695976'), 'https://api.parseapi.com/vat/DE136695976'],
-			'iban' => [fn (Client $p) => $p->iban('DE89370400440532013000'), 'https://api.parseapi.com/iban/DE89370400440532013000'],
-			'iban country' => [fn (Client $p) => $p->iban('89370400440532013000', 'DE'), 'https://api.parseapi.com/iban/89370400440532013000?country=DE'],
-			'npi' => [fn (Client $p) => $p->npi('1881018208'), 'https://api.parseapi.com/npi/1881018208'],
+			'bank' => [fn (Client $p) => $p->bank('DE89370400440532013000'), 'https://api.parseapi.com/bank'],
+			'bank country' => [fn (Client $p) => $p->bank('89370400440532013000', 'DE'), 'https://api.parseapi.com/bank'],
+			'npi' => [fn (Client $p) => $p->provider('1881018208'), 'https://api.parseapi.com/provider/1881018208'],
 			'vat from deep' => [fn (Client $p) => $p->vat('DE136695976', from: 'IE6388047V', deep: true), 'https://api.parseapi.com/vat/DE136695976?deep=true&from=IE6388047V'],
 			'phone encodes plus' => [fn (Client $p) => $p->phone('+14155552671', deep: true), 'https://api.parseapi.com/phone/%2B14155552671?deep=true'],
 			'carrier encodes plus' => [fn (Client $p) => $p->carrier('+14155552671'), 'https://api.parseapi.com/carrier/%2B14155552671'],
@@ -251,6 +289,8 @@ final class ClientTest extends TestCase
 			'mac' => [fn (Client $p) => $p->mac('00:1B:63:84:45:E6'), 'https://api.parseapi.com/mac/00%3A1B%3A63%3A84%3A45%3AE6'],
 			'mx' => [fn (Client $p) => $p->mx('example.com'), 'https://api.parseapi.com/mx/example.com'],
 			'useragent' => [fn (Client $p) => $p->useragent('TestUA/1.0'), 'https://api.parseapi.com/useragent'],
+			'vehicle' => [fn (Client $p) => $p->vehicle('1HGCM82633A004352'), 'https://api.parseapi.com/vehicle/1HGCM82633A004352'],
+			'vehicle deep' => [fn (Client $p) => $p->vehicle('1HGCM82633A004352', true), 'https://api.parseapi.com/vehicle/1HGCM82633A004352?deep=true'],
 			'vin' => [fn (Client $p) => $p->vin('1HGCM82633A004352'), 'https://api.parseapi.com/vin/1HGCM82633A004352'],
 			'vin deep' => [fn (Client $p) => $p->vin('1HGCM82633A004352', true), 'https://api.parseapi.com/vin/1HGCM82633A004352?deep=true'],
 			'tariff' => [fn (Client $p) => $p->tariff('8471.30.01.00', deep: true, origin: 'CN'), 'https://api.parseapi.com/tariff/8471.30.01.00?deep=true&origin=CN'],
@@ -472,13 +512,13 @@ final class ClientTest extends TestCase
 		}
 	}
 
-	public function testRetryAfterSupportsHttpDatesAndCapsDelays(): void
+	public function testRetryAfterSupportsHttpDatesAndDeclinesLongDelays(): void
 	{
 		$client = new Client('k');
 		$delay = new \ReflectionMethod(Client::class, 'retryDelay');
 		$this->assertSame(0.0, $delay->invoke($client, 0, 'Sun, 06 Nov 1994 08:49:37 GMT'));
-		$this->assertSame(5.0, $delay->invoke($client, 0, gmdate('D, d M Y H:i:s \\G\\M\\T', time() + 60)));
-		$this->assertSame(5.0, $delay->invoke($client, 0, '100'));
+		$this->assertNull($delay->invoke($client, 0, gmdate('D, d M Y H:i:s \\G\\M\\T', time() + 60)));
+		$this->assertNull($delay->invoke($client, 0, '100'));
 	}
 
 	public function testRedirectIsAnErrorWithoutForwardingTheKey(): void
@@ -586,7 +626,7 @@ final class ClientTest extends TestCase
 
 	public function testDisplayLanguageIsPerRequestAndPreservesExistingQueries(): void
 	{
-		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["bloc.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["npi", ["1881018208"], {"deep": true}], ["asn", ["AS13335"], {}], ["currency", ["USD"], {"deep": true}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}], ["measure.units", [], {"query": "meter", "unit": "m"}]]', true, 512, JSON_THROW_ON_ERROR);
+		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["bloc.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["provider", ["1881018208"], {"deep": true}], ["asn", ["AS13335"], {}], ["currency", ["USD"], {"deep": true}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}], ["measure.units", [], {"query": "meter", "unit": "m"}]]', true, 512, JSON_THROW_ON_ERROR);
 		foreach ($operations as [$method, $args, $options]) {
 			$native = preg_replace_callback('/\.([a-z])/', fn ($match) => strtoupper($match[1]), $method);
 			$client = $this->stubClient();
