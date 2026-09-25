@@ -80,7 +80,7 @@ expectOk('addressSearch', fn () => $parse->addressSearch('123 main', country: 'U
 expectOk('company', fn () => $parse->company('732829320', country: 'FR'), fn ($r) => $r['valid'] === true ? null : 'not valid');
 expectOk('email', fn () => $parse->email('hello@gmail.com'), fn ($r) => $r['valid'] === true ? null : 'not valid');
 expectOk('vat', fn () => $parse->vat('DE136695976'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE') ? null : 'not valid DE');
-expectOk('card', fn () => $parse->card('00 0000'), fn ($r) => $r['bin'] === '000000' && $r['prefix'] === null ? null : 'BIN echo or prefix mismatch');
+expectOk('card', fn () => $parse->card('00 0000'), fn ($r) => $r['bin'] === '000000' && $r['brand'] === null && $r['logo'] === 'https://cdn.parseapi.com/card/generic.svg' ? null : 'BIN echo or prefix mismatch');
 expectOk('bank', fn () => $parse->bank('DE89370400440532013000'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE' && $r['bank'] === '37040044') ? null : 'not valid DE');
 expectOk('bank junk', fn () => $parse->bank('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
 expectOk('npi', fn () => $parse->npi('1881018208'), fn ($r) => ($r['valid'] === true && $r['registered'] === true) ? null : 'not registered');

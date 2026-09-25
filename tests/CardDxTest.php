@@ -15,15 +15,24 @@ final class CardDxTest extends TestCase
 	{
 		$calls = [];
 		$client = new Client('fixture', transport: static function($url) use (&$calls) { $calls[] = $url; return [200, [], '{}']; });
-		foreach (['', '12345', '123456789012', '4242424242424242', '００１２３４', "00\u{00a0}1234", "00\v1234", '00%201234', '00+1234', '00/1234', '00_1234', str_repeat(' ', 59).'001234', 123456, null, false, []] as $input) {
+		foreach (['', '1', '123456789012', '4242424242424242', '００１２３４', "00\u{00a0}1234", "00\v1234", '00%201234', '00+1234', '00/1234', '00_1234', str_repeat(' ', 59).'001234', 123456, null, false, []] as $input) {
 			try { \callCardFromWeakPhp($client, $input); $this->fail('expected argument error'); }
-			catch (\InvalidArgumentException $error) { $this->assertSame('parseapi: Card requires a string containing 6 to 11 digits. Send a prefix only.', $error->getMessage()); }
+			catch (\InvalidArgumentException $error) { $this->assertSame('parseapi: Card requires a string containing 2 to 11 digits. Send a prefix only.', $error->getMessage()); }
 		}
 		$this->assertSame([], $calls);
 		foreach (['001234', '00123456789', '00 1234-56', "00\t12\r34\n-56", str_repeat(' ', 58).'001234'] as $input) {
 			\callCardFromWeakPhp($client, $input);
 			$this->assertSame('https://api.parseapi.com/card/'.rawurlencode($input), end($calls));
 		}
+	}
+
+	public function testOptionalCardDeep(): void
+	{
+		$calls = [];
+		$body = ['bin'=>'001234', 'brand'=>null, 'brand_name'=>null, 'logo'=>'https://cdn.parseapi.com/card/generic.svg', 'deep'=>['prefix'=>'001234', 'issuer'=>null, 'country'=>null, 'type'=>null, 'prepaid'=>false]];
+		$client = new Client('fixture', transport: static function($url) use (&$calls, $body) { $calls[]=$url; return [200, [], json_encode($body)]; });
+		$this->assertSame($body, $client->card('00-1234', deep:true));
+		$this->assertSame(['https://api.parseapi.com/card/00-1234?deep=true'], $calls);
 	}
 
 	public function testLongRetryAfterReturnsOriginalErrorWithoutSleeping(): void

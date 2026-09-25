@@ -230,13 +230,13 @@ final class Client
 		return $this->get('/bank', [], [], array_filter(['iban' => $iban, 'country' => $country, 'deep' => $deep], static fn($value) => $value !== null));
 	}
 
-	/** Look up a 6-11 digit card prefix, preserving leading zeros. @param string $bin */
-	public function card(mixed $bin): array
+	/** Look up a 2-11 digit card prefix, preserving leading zeros. @param string $bin */
+	public function card(mixed $bin, bool $deep = false): array
 	{
-		if (!is_string($bin) || strlen($bin) > 64 || preg_match('/\A[0-9]{6,11}\z/', str_replace([" ", "\t", "\r", "\n", "-"], '', $bin)) !== 1) {
-			throw new \InvalidArgumentException('parseapi: Card requires a string containing 6 to 11 digits. Send a prefix only.');
+		if (!is_string($bin) || strlen($bin) > 64 || preg_match('/\A[0-9]{2,11}\z/', str_replace([" ", "\t", "\r", "\n", "-"], '', $bin)) !== 1) {
+			throw new \InvalidArgumentException('parseapi: Card requires a string containing 2 to 11 digits. Send a prefix only.');
 		}
-		return $this->get('/card/' . rawurlencode($bin));
+		return $this->get('/card/' . rawurlencode($bin), ['deep' => $deep]);
 	}
 
 

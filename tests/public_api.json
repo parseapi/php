@@ -191,6 +191,11 @@
           {
             "name": "bin",
             "type": "mixed"
+          },
+          {
+            "name": "deep",
+            "type": "bool",
+            "default": false
           }
         ],
         "return": "array"
