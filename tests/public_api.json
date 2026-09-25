@@ -721,6 +721,39 @@
                 ],
                 "return": "array"
             },
+            "industry": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "industrySearch": {
+                "parameters": [
+                    {
+                        "name": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
             "ip": {
                 "parameters": [
                     {

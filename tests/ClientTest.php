@@ -103,8 +103,8 @@ final class ClientTest extends TestCase
 		foreach ($records as $record) {
 			$body = ['q' => 'sofware', 'year' => 2022, 'country' => 'US', 'results' => [$record]];
 			$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
-			$this->assertSame($body, $client->naicsSearch('sofware'));
-			$this->assertSame('https://api.parseapi.com/naics?q=sofware', $this->calls[0]['url']);
+			$this->assertSame($body, $client->industrySearch('sofware'));
+			$this->assertSame('https://api.parseapi.com/industry?q=sofware', $this->calls[0]['url']);
 		}
 	}
 
@@ -231,10 +231,10 @@ final class ClientTest extends TestCase
 			'card separators' => [fn (Client $p) => $p->card('00 1234-56'), 'https://api.parseapi.com/card/00%201234-56'],
 			'dns' => [fn (Client $p) => $p->dns('example.com'), 'https://api.parseapi.com/dns/example.com'],
 			'dns type' => [fn (Client $p) => $p->dns('_dmarc.bücher.example.', type: 'txt'), 'https://api.parseapi.com/dns/_dmarc.b%C3%BCcher.example.?type=txt'],
-			'naics' => [fn (Client $p) => $p->naics('31-33'), 'https://api.parseapi.com/naics/31-33'],
-			'naics encoded' => [fn (Client $p) => $p->naics('54/11'), 'https://api.parseapi.com/naics/54%2F11'],
-			'naicsSearch' => [fn (Client $p) => $p->naicsSearch('coffee & tea', limit: 5), 'https://api.parseapi.com/naics?q=coffee+%26+tea&limit=5'],
-			'naicsSearch default' => [fn (Client $p) => $p->naicsSearch('plumbing'), 'https://api.parseapi.com/naics?q=plumbing'],
+			'naics' => [fn (Client $p) => $p->industry('31-33'), 'https://api.parseapi.com/industry/31-33'],
+			'naics encoded' => [fn (Client $p) => $p->industry('54/11'), 'https://api.parseapi.com/industry/54%2F11'],
+			'industrySearch' => [fn (Client $p) => $p->industrySearch('coffee & tea', limit: 5), 'https://api.parseapi.com/industry?q=coffee+%26+tea&limit=5'],
+			'industrySearch default' => [fn (Client $p) => $p->industrySearch('plumbing'), 'https://api.parseapi.com/industry?q=plumbing'],
 			'measure' => [fn (Client $p) => $p->measure('5 ft 11 in', to: 'cm', locale: 'en-US', system: 'us'), 'https://api.parseapi.com/measure/5%20ft%2011%20in?to=cm&locale=en-US&system=us'],
 			'measure compound' => [fn (Client $p) => $p->measure('1 kg/m^3', to: 'g/L'), 'https://api.parseapi.com/measure/1%20kg%2Fm%5E3?to=g%2FL'],
 			'measureUnits' => [fn (Client $p) => $p->measureUnits(query: 'US gallon', type: 'volume', unit: 'L'), 'https://api.parseapi.com/measure/units?q=US+gallon&type=volume&unit=L'],

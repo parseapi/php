@@ -341,15 +341,23 @@ final class Client
 	}
 
 	/** US NAICS 2022 definition and hierarchy. */
+	/** Compatibility name for industry. */
 	public function naics(string $code, bool $deep = false): array
+	{ return $this->industry($code, $deep); }
+
+	/** Compatibility name for industrySearch. */
+	public function naicsSearch(string $query, ?int $limit = null, bool $deep = false): array
+	{ return $this->industrySearch($query, $limit, $deep); }
+
+	public function industry(string $code, bool $deep = false): array
 	{
-		return $this->get('/naics/' . rawurlencode($code), ['deep' => $deep]);
+		return $this->get('/industry/' . rawurlencode($code), ['deep' => $deep]);
 	}
 
 	/** Keyword search. Limit defaults to 10 and accepts 1-50. */
-	public function naicsSearch(string $query, ?int $limit = null, bool $deep = false): array
+	public function industrySearch(string $query, ?int $limit = null, bool $deep = false): array
 	{
-		return $this->get('/naics', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
+		return $this->get('/industry', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
 	}
 
 	/**
