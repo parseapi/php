@@ -205,6 +205,29 @@ final class Client
 		return $this->get('/company/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
+	/** Fetch a directory profile by its stable Company ID. */
+	public function companyId(string $id, bool $deep = false): array
+	{
+		return $this->get('/company/id/' . rawurlencode($id), ['deep' => $deep]);
+	}
+
+	/**
+	 * Use at most one selector, or discover by country, industry or selected registration.
+	 * Pair a four-digit SIC industry string with industryType="sic".
+	 * The API validates selectors and filters. Review candidates before choosing an ID.
+	 * Pass a returned cursor with the same selector and filters. Deep belongs to each result.
+	 */
+	public function companySearch(?string $query = null, ?string $domain = null, ?string $ticker = null, ?string $identifier = null, ?string $country = null, ?string $exchange = null, ?string $authority = null, ?int $limit = null, ?string $cursor = null, bool $deep = false, ?string $industry = null, ?string $industryType = null): array
+	{
+		return $this->get('/company', ['q' => $query, 'domain' => $domain, 'ticker' => $ticker, 'identifier' => $identifier, 'country' => $country, 'exchange' => $exchange, 'authority' => $authority, 'limit' => $limit, 'cursor' => $cursor, 'deep' => $deep, 'industry' => $industry, 'industry_type' => $industryType]);
+	}
+
+	/** Read the directory edition and source coverage. */
+	public function companyCoverage(): array
+	{
+		return $this->get('/company/directory/coverage');
+	}
+
 	/**
 	 * Parse an email and check its format and domain. Deep explicitly requests a metered
 	 * deliverability check. Deep checks use one attempt by default. An explicit retry count can
