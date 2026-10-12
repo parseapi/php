@@ -604,6 +604,31 @@
         ],
         "return": "array"
       },
+      "currencyList": {
+        "parameters": [
+          {
+            "name": "q",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "country",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "deep",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "lang",
+            "type": "?string",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
       "currencyRate": {
         "parameters": [
           {
@@ -673,6 +698,32 @@
             "name": "amount",
             "type": "?float",
             "default": null
+          },
+          {
+            "name": "interval",
+            "type": "?string",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "currencyRatesSummary": {
+        "parameters": [
+          {
+            "name": "base",
+            "type": "string"
+          },
+          {
+            "name": "quotes",
+            "type": "array"
+          },
+          {
+            "name": "from",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "type": "string"
           },
           {
             "name": "interval",
@@ -1732,57 +1783,6 @@
           },
           {
             "name": "date",
-            "type": "?string",
-            "default": null
-          }
-        ],
-        "return": "array"
-      },
-      "currencyList": {
-        "parameters": [
-          {
-            "name": "q",
-            "type": "?string",
-            "default": null
-          },
-          {
-            "name": "country",
-            "type": "?string",
-            "default": null
-          },
-          {
-            "name": "deep",
-            "type": "bool",
-            "default": false
-          },
-          {
-            "name": "lang",
-            "type": "?string",
-            "default": null
-          }
-        ],
-        "return": "array"
-      },
-      "currencyRatesSummary": {
-        "parameters": [
-          {
-            "name": "base",
-            "type": "string"
-          },
-          {
-            "name": "quotes",
-            "type": "array"
-          },
-          {
-            "name": "from",
-            "type": "string"
-          },
-          {
-            "name": "to",
-            "type": "string"
-          },
-          {
-            "name": "interval",
             "type": "?string",
             "default": null
           }
