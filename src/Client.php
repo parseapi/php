@@ -548,14 +548,45 @@ final class Client
 		return $this->get('/weather', ['lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'date' => $date]);
 	}
 
-	public function emoji(string $emoji, bool $deep = false, ?string $lang = null): array
+	public function emoji(string $emoji, bool $deep = false, ?string $lang = null, ?string $shortcodeSource = null): array
 	{
-		return $this->get('/emoji/' . rawurlencode($emoji), ['deep' => $deep, 'lang' => $lang]);
+		return $this->get('/emoji/' . rawurlencode($emoji), ['deep' => $deep, 'lang' => $lang, 'shortcode_source' => $shortcodeSource]);
 	}
 
-	public function emojiSearch(string $query, ?int $limit = null, bool $deep = false, ?string $lang = null): array
+	public function emojiSearch(string $query, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $category = null, ?string $subcategory = null, ?string $version = null, ?string $maxVersion = null, ?bool $includeSkinTones = null, ?int $offset = null): array
 	{
-		return $this->get('/emoji', ['q' => $query, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang]);
+		return $this->get('/emoji', ['q' => $query] + ['limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'category' => $category, 'subcategory' => $subcategory, 'version' => $version, 'max_version' => $maxVersion, 'include_skin_tones' => $includeSkinTones === null ? null : ($includeSkinTones ? 'true' : 'false'), 'offset' => $offset]);
+	}
+
+	public function emojiBrowse(?int $limit = null, bool $deep = false, ?string $lang = null, ?string $category = null, ?string $subcategory = null, ?string $version = null, ?string $maxVersion = null, ?bool $includeSkinTones = null, ?int $offset = null): array
+	{
+		return $this->get('/emoji', ['limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'category' => $category, 'subcategory' => $subcategory, 'version' => $version, 'max_version' => $maxVersion, 'include_skin_tones' => $includeSkinTones === null ? null : ($includeSkinTones ? 'true' : 'false'), 'offset' => $offset]);
+	}
+
+	public function emojiConvert(string $text, string $direction, string $shortcodeSource): array
+	{
+		return $this->get('/emoji/convert', ['direction' => $direction, 'shortcode_source' => $shortcodeSource], [], ['text' => $text]);
+	}
+
+	public function emojiCatalog(bool $deep = true, ?string $lang = null, ?string $category = null, ?string $subcategory = null, ?string $version = null, ?string $maxVersion = null, ?bool $includeSkinTones = null, ?string $profile = null): array
+	{
+		return $this->get('/emoji/catalog', ['profile' => $profile, 'deep' => $deep ? 'true' : 'false', 'lang' => $lang, 'category' => $category, 'subcategory' => $subcategory, 'version' => $version, 'max_version' => $maxVersion, 'include_skin_tones' => $includeSkinTones === null ? null : ($includeSkinTones ? 'true' : 'false')]);
+	}
+
+	public function emojiMetadata(): array
+	{
+		return $this->get('/emoji/metadata');
+	}
+
+	public function emojiCategories(): array
+	{
+		return $this->get('/emoji/categories');
+	}
+
+	/** Positions are UTF-16 code units; end is exclusive. */
+	public function emojiParse(string $text, bool $deep = false, ?string $lang = null): array
+	{
+		return $this->get('/emoji/parse', ['deep' => $deep, 'lang' => $lang], [], ['text' => $text]);
 	}
 
 	// --- Transport ---
