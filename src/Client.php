@@ -436,6 +436,101 @@ final class Client
 		]);
 	}
 
+	/**
+	 * Source discovery preserves nullable history bounds and currency coverage.
+	 * @return array{data:list<array>}
+	 */
+
+	/** Ordered quotes in one pooled lookup. @param list<string> $quotes */
+	public function currencyRates(string $base, ?array $quotes = null, ?string $date = null, ?float $amount = null): array
+	{
+		$query = self::currencyQuery($quotes, $amount);
+		if ($date !== null) self::currencyDay($date);
+		return $this->get('/currency/' . rawurlencode($base) . '/rates', ['date' => $date] + $query);
+	}
+
+	/** Maintained metadata, independently of rate availability. @return array{data:list<array>} */
+	public function currencyList(?string $q = null, ?string $country = null, bool $deep = false, ?string $lang = null): array
+	{
+		return $this->get('/currency', ['q' => $q, 'country' => $country, 'deep' => $deep, 'lang' => $lang]);
+	}
+
+
+
+
+
+	/** Daily pair history, or week/month samples anchored to from with to included. Converted values are server-rounded JSON numbers. */
+	public function currencyHistory(string $base, string $quote, string $from, string $to, ?float $amount = null, ?string $interval = null): array
+	{
+		self::currencyHistoryRange($from, $to, 1, $interval);
+		return $this->get('/currency/' . rawurlencode($base) . '/' . rawurlencode($quote) . '/history',
+			['interval' => $interval, 'from' => $from, 'to' => $to] + self::currencyQuery(null, $amount));
+	}
+
+	/** Up to 50 quotes and 5000 sampled quote-dates, including explicit missing rows. @param list<string> $quotes */
+	public function currencyRatesHistory(string $base, array $quotes, string $from, string $to, ?float $amount = null, ?string $interval = null): array
+	{
+		$query = self::currencyQuery($quotes, $amount);
+		self::currencyHistoryRange($from, $to, count($quotes), $interval);
+		return $this->get('/currency/' . rawurlencode($base) . '/rates/history', ['interval' => $interval, 'from' => $from, 'to' => $to] + $query);
+	}
+
+
+
+	/** Publication averages, extrema and honest calendar gaps for month, quarter or year. @param list<string> $quotes */
+	public function currencyRatesSummary(string $base, array $quotes, string $from, string $to, ?string $interval = null): array
+	{
+		$query = self::currencySummaryQuery($quotes, $from, $to, $interval);
+		return $this->get('/currency/' . rawurlencode($base) . '/rates/summary', $query);
+	}
+
+
+	private static function currencySummaryQuery(array $quotes, string $from, string $to, ?string $interval): array
+	{
+		if ($interval !== null && !in_array($interval, ['month', 'quarter', 'year'], true)) throw new \InvalidArgumentException('Currency summary interval must be month, quarter or year.');
+		$query = self::currencyQuery($quotes, null);
+		unset($query['amount'], $query['deep']);
+		self::currencyRange($from, $to, count($quotes), 36600);
+		return ['from' => $from, 'to' => $to, 'interval' => $interval] + $query;
+	}
+
+	private static function currencyHistoryRange(string $from, string $to, int $quotes, ?string $interval): void
+	{
+		if ($interval !== null && !in_array($interval, ['day', 'week', 'month'], true)) throw new \InvalidArgumentException('Currency history interval must be day, week or month.');
+		self::currencyRange($from, $to, $quotes, $interval === null || $interval === 'day' ? 366 : 36600);
+	}
+
+	private static function currencyQuery(?array $quotes, ?float $amount): array
+	{
+		if ($amount !== null && (!is_finite($amount) || abs($amount) > 1e15)) throw new \InvalidArgumentException('Currency amount must be finite and within +/-1e15.');
+		$query = ['amount' => $amount];
+		if ($quotes !== null) {
+			if (!array_is_list($quotes) || count($quotes) < 1 || count($quotes) > 50) throw new \InvalidArgumentException('Currency quotes requires 1 to 50 codes.');
+			$seen = [];
+			foreach ($quotes as $code) {
+				if (!is_string($code) || preg_match('/\A[A-Za-z]{3}\z/', trim($code)) !== 1 || isset($seen[strtoupper(trim($code))])) throw new \InvalidArgumentException('Currency quotes must be distinct three-letter codes.');
+				$seen[strtoupper(trim($code))] = true;
+			}
+			$query = ['quotes' => implode(',', array_map('trim', $quotes))] + $query;
+		}
+		return $query;
+	}
+
+	private static function currencyDay(string $day): int
+	{
+		if (preg_match('/\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/', $day) !== 1 || $day < '1000-01-01' || $day > gmdate('Y-m-d')) throw new \InvalidArgumentException('Currency dates must be real UTC days from year 1000 through today.');
+		$date = \DateTimeImmutable::createFromFormat('!Y-m-d', $day, new \DateTimeZone('UTC'));
+		if (!$date || $date->format('Y-m-d') !== $day) throw new \InvalidArgumentException('Currency dates must be real UTC days from year 1000 through today.');
+		return $date->getTimestamp();
+	}
+
+	private static function currencyRange(string $from, string $to, int $quotes, int $maxDays = 366): void
+	{
+		$days = (self::currencyDay($to) - self::currencyDay($from)) / 86400 + 1;
+		if ($days < 1 || $days > $maxDays || ($maxDays === 366 && $days * $quotes > 5000)) throw new \InvalidArgumentException("Currency history requires 1 to {$maxDays} days within the API read and output limits.");
+	}
+
+
 	public function language(string $code, bool $deep = false, ?string $lang = null): array
 	{
 		return $this->get('/language/' . rawurlencode($code), ['deep' => $deep, 'lang' => $lang]);
@@ -586,7 +681,7 @@ final class Client
 		return !$this->timeoutExplicit && str_starts_with($path, '/stack/') ? 35.0 : $this->timeout;
 	}
 
-	private function get(string $path, array $query = [], array $headers = [], ?array $json = null): array
+	private function get(string $path, array $query = [], array $headers = [], ?array $json = null, ?string $rawFormat = null): array
 	{
 		$retries = $this->retriesFor($path, $query);
 		$clean = [];
@@ -623,6 +718,12 @@ final class Client
 			}
 
 			if ($status >= 200 && $status < 300) {
+				if ($rawFormat !== null) {
+					$responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
+					$type = strtolower(trim(explode(';', $responseHeaders['content-type'] ?? '')[0]));
+					if ($type !== ($rawFormat === 'csv' ? 'text/csv' : 'application/x-ndjson')) throw new \UnexpectedValueException('parseapi: unexpected Currency export content type.');
+					return ['body' => $body, 'headers' => $responseHeaders];
+				}
 				$decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 				if (!is_array($decoded)) {
 					throw new \UnexpectedValueException('parseapi: expected a JSON object or array response.');

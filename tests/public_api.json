@@ -573,6 +573,37 @@
         ],
         "return": "array"
       },
+      "currencyHistory": {
+        "parameters": [
+          {
+            "name": "base",
+            "type": "string"
+          },
+          {
+            "name": "quote",
+            "type": "string"
+          },
+          {
+            "name": "from",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "type": "string"
+          },
+          {
+            "name": "amount",
+            "type": "?float",
+            "default": null
+          },
+          {
+            "name": "interval",
+            "type": "?string",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
       "currencyRate": {
         "parameters": [
           {
@@ -591,6 +622,61 @@
           {
             "name": "amount",
             "type": "?float",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "currencyRates": {
+        "parameters": [
+          {
+            "name": "base",
+            "type": "string"
+          },
+          {
+            "name": "quotes",
+            "type": "?array",
+            "default": null
+          },
+          {
+            "name": "date",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "amount",
+            "type": "?float",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "currencyRatesHistory": {
+        "parameters": [
+          {
+            "name": "base",
+            "type": "string"
+          },
+          {
+            "name": "quotes",
+            "type": "array"
+          },
+          {
+            "name": "from",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "type": "string"
+          },
+          {
+            "name": "amount",
+            "type": "?float",
+            "default": null
+          },
+          {
+            "name": "interval",
+            "type": "?string",
             "default": null
           }
         ],
@@ -1646,6 +1732,57 @@
           },
           {
             "name": "date",
+            "type": "?string",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "currencyList": {
+        "parameters": [
+          {
+            "name": "q",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "country",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "deep",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "lang",
+            "type": "?string",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "currencyRatesSummary": {
+        "parameters": [
+          {
+            "name": "base",
+            "type": "string"
+          },
+          {
+            "name": "quotes",
+            "type": "array"
+          },
+          {
+            "name": "from",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "type": "string"
+          },
+          {
+            "name": "interval",
             "type": "?string",
             "default": null
           }
