@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.9.0';
+	public const VERSION = '1.9.2';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -592,7 +592,8 @@ final class Client
 	// --- Transport ---
 
 	/** Parse or convert a measurement. Amount is a decimal string. Without to, use the
-	 * type's canonical unit. Locale and system (us or imperial) resolve explicit ambiguity. */
+	 * type's canonical unit. Locale and system (us or imperial) resolve explicit ambiguity.
+	 * Successful JSON omits reason and choices. Invalid input adds reason and alternatives add choices. */
 	public function measure(string $measure, ?string $to = null, ?string $locale = null, ?string $system = null): array
 	{
 		return $this->get('/measure/' . rawurlencode($measure), ['to' => $to, 'locale' => $locale, 'system' => $system]);
