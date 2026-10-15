@@ -258,6 +258,122 @@
                         "name": "lang",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "grain",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "aliases",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "ambiguity",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "format",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "cityAncestors": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "cityChildren": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "cursor",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "cityDistance": {
+                "parameters": [
+                    {
+                        "name": "from",
+                        "type": "string"
+                    },
+                    {
+                        "name": "to",
+                        "type": "string"
                     }
                 ],
                 "return": "array"
@@ -277,6 +393,131 @@
                         "name": "lang",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "format",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "cityList": {
+                "parameters": [
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "grain",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "minPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "maxPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "timezone",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "bbox",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "sort",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "order",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "cursor",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "countries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "excludeCountries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "timezones",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "minElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "maxElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -321,6 +562,234 @@
                         "name": "lang",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "grain",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "aliases",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "ambiguity",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "minPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "maxPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "timezone",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "bbox",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "sort",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "order",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "page",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "cursor",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "format",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "countries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "excludeCountries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "timezones",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "minElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "maxElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "cityNearbyCoords": {
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "type": "float"
+                    },
+                    {
+                        "name": "lon",
+                        "type": "float"
+                    },
+                    {
+                        "name": "radius",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "unit",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "grain",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "minPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "maxPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "timezone",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "bbox",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "sort",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "order",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "cursor",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "countries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "excludeCountries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "timezones",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "minElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "maxElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -344,6 +813,41 @@
                         "name": "lang",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "grain",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "format",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -378,6 +882,150 @@
                         "name": "lang",
                         "type": "?string",
                         "default": null
+                    },
+                    {
+                        "name": "type",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "grain",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "aliases",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "minPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "maxPopulation",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "timezone",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "bbox",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "sort",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "order",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "page",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "cursor",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "format",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "countries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "excludeCountries",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "timezones",
+                        "type": "array|string|null",
+                        "default": null
+                    },
+                    {
+                        "name": "minElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "maxElevation",
+                        "type": "?float",
+                        "default": null
+                    },
+                    {
+                        "name": "match",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "maxDistance",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "return": "array"
+            },
+            "citySiblings": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "?int",
+                        "default": null
+                    },
+                    {
+                        "name": "cursor",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "hierarchy",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "romanized",
+                        "type": "bool",
+                        "default": false
                     }
                 ],
                 "return": "array"
@@ -1866,6 +2514,10 @@
             }
         },
         "properties": {
+            "candidates": {
+                "type": "array",
+                "readonly": false
+            },
             "docs": {
                 "type": "?string",
                 "readonly": true

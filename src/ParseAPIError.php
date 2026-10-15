@@ -9,6 +9,8 @@ namespace ParseAPI;
  */
 class ParseAPIError extends \Exception
 {
+	/** Present only on structured HTTP 409 ambiguous_city responses. Identity fields only. @var list<array<string, mixed>> */
+	public array $candidates;
 	public function __construct(
 		public readonly int $status,
 		public readonly string $errorCode,
