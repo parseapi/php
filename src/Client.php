@@ -638,9 +638,14 @@ final class Client
 		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit, 'lang' => $lang]);
 	}
 
+	private static function tariffEditionId(mixed $value): bool
+    {
+        return is_string($value) && (preg_match('/\A[a-f0-9]{64}\z/', $value) === 1 || (preg_match('/\Ated_[1-9][0-9]{0,19}\z/', $value) === 1 && (strlen($value) < 24 || strcmp(substr($value, 4), '18446744073709551615') <= 0)));
+    }
+
 	private static function tariffSelection(array $result, ?string $edition, ?string $date): array
 	{
-		if (($edition !== null || $date !== null) && (!is_string($result['edition'] ?? null) || preg_match('/\A[a-f0-9]{64}\z/', $result['edition']) !== 1 || ($edition !== null && $result['edition'] !== $edition) || ($result['date'] ?? null) !== $date)) {
+		if (($edition !== null || $date !== null) && (!self::tariffEditionId($result['edition'] ?? null) || ($edition !== null && $result['edition'] !== $edition) || ($result['date'] ?? null) !== $date)) {
 			throw new ParseAPIError(0, 'tariff_selection_mismatch', 'Tariff response did not confirm the requested edition/date. The server may not support this selection.');
 		}
 		return $result;
