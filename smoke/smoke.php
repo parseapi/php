@@ -61,8 +61,8 @@ expectOk('ip', fn () => $parse->ip('8.8.8.8'), fn ($r) => $r['ip'] === '8.8.8.8'
 expectOk('ipSelf', fn () => $parse->ipSelf(), fn ($r) => !empty($r['ip']) ? null : 'no ip');
 expectOk('continent', fn () => $parse->continent('NA'), fn ($r) => $r['name'] === 'North America' ? null : 'wrong name');
 expectOk('continentCountries', fn () => $parse->continentCountries('NA'), fn ($r) => !empty($r['countries']) ? null : 'empty');
-expectOk('bloc', fn () => $parse->bloc('EU'), fn ($r) => $r['name'] === 'European Union' && $r['members'] === 27 ? null : 'wrong bloc');
-expectOk('blocCountries', fn () => $parse->blocCountries('SCHENGEN'), fn ($r) => isset($r['countries']) && count($r['countries']) === 29 ? null : 'wrong members');
+
+
 expectOk('country', fn () => $parse->country('US'), fn ($r) => $r['iso3'] === 'USA' ? null : 'wrong iso3');
 expectOk('countryStates', fn () => $parse->countryStates('US'), fn ($r) => count($r['states']) >= 50 ? null : 'too few');
 expectOk('state', fn () => $parse->state('NC', country: 'US'), fn ($r) => $r['name'] === 'North Carolina' ? null : 'wrong');
@@ -79,12 +79,12 @@ expectOk('address', fn () => $parse->address('1600 Pennsylvania Ave NW, Washingt
 expectOk('addressSearch', fn () => $parse->addressSearch('123 main', country: 'US', postal: '27401'), fn ($r) => is_array($r['addresses']) ? null : 'missing addresses');
 expectOk('company', fn () => $parse->company('732829320', country: 'FR'), fn ($r) => $r['valid'] === true ? null : 'not valid');
 expectOk('email', fn () => $parse->email('hello@gmail.com'), fn ($r) => $r['valid'] === true ? null : 'not valid');
-expectOk('vat', fn () => $parse->vat('DE136695976'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE') ? null : 'not valid DE');
+
 expectOk('card', fn () => $parse->card('00 0000'), fn ($r) => $r['bin'] === '000000' && $r['brand'] === null && $r['logo'] === 'https://cdn.parseapi.com/card/generic.svg' ? null : 'BIN echo or prefix mismatch');
 expectOk('bank', fn () => $parse->bank('DE89370400440532013000'), fn ($r) => ($r['valid'] === true && $r['country'] === 'DE' && $r['bank'] === '37040044') ? null : 'not valid DE');
 expectOk('bank junk', fn () => $parse->bank('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
-expectOk('npi', fn () => $parse->provider('1881018208'), fn ($r) => ($r['valid'] === true && $r['registered'] === true) ? null : 'not registered');
-expectOk('npi junk', fn () => $parse->provider('hello'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
+
+
 expectOk('phone', fn () => $parse->phone('+14155552671'), fn ($r) => $r['phone'] === '+14155552671' ? null : 'wrong phone');
 // Metered core siblings: junk numbers answer 200 valid false, free, no vendor dip.
 expectOk('carrier junk free', fn () => $parse->carrier('555-0100'), fn ($r) => $r['valid'] === false ? null : 'expected invalid');
@@ -98,8 +98,8 @@ expectOk('measureUnits', fn () => $parse->measureUnits(unit: 'm'), fn ($r) => in
 expectOk('dns', fn () => $parse->dns('example.com', type: 'A'), fn ($r) => count(array_filter($r['records'], fn ($record) => $record['type'] === 'A' && is_int($record['ttl']))) > 0 ? null : 'no A records');
 expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? null : 'no mx');
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
-expectOk('tariff', fn () => $parse->tariff('8471.30.01.00'), fn ($r) => is_string($r['hts']) ? null : 'missing hts');
-expectOk('tariffSearch', fn () => $parse->tariffSearch('sunglasses'), fn ($r) => is_array($r['lines']) ? null : 'missing lines');
+
+
 expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] === '$' ? null : 'wrong symbol');
 expectOk('currencyRate', fn () => $parse->currencyRate('USD', 'EUR'), fn ($r) => $r['rate'] > 0 && $r['rate'] < 10 ? null : 'bad rate');
 expectOk('language', fn () => $parse->language('en'), fn ($r) => ($r['language'] === 'en' && $r['name'] === 'English') ? null : 'wrong language');

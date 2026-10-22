@@ -163,29 +163,6 @@
                 ],
                 "return": "array"
             },
-            "bloc": {
-                "parameters": [
-                    {
-                        "name": "code",
-                        "type": "string"
-                    }
-                ],
-                "return": "array"
-            },
-            "blocCountries": {
-                "parameters": [
-                    {
-                        "name": "code",
-                        "type": "string"
-                    },
-                    {
-                        "name": "lang",
-                        "type": "?string",
-                        "default": null
-                    }
-                ],
-                "return": "array"
-            },
             "caller": {
                 "parameters": [
                     {
@@ -1869,25 +1846,6 @@
                 ],
                 "return": "array"
             },
-            "npi": {
-                "parameters": [
-                    {
-                        "name": "npi",
-                        "type": "string"
-                    },
-                    {
-                        "name": "deep",
-                        "type": "bool",
-                        "default": false
-                    },
-                    {
-                        "name": "lang",
-                        "type": "?string",
-                        "default": null
-                    }
-                ],
-                "return": "array"
-            },
             "phone": {
                 "parameters": [
                     {
@@ -2016,25 +1974,6 @@
                 ],
                 "return": "array"
             },
-            "provider": {
-                "parameters": [
-                    {
-                        "name": "npi",
-                        "type": "string"
-                    },
-                    {
-                        "name": "deep",
-                        "type": "bool",
-                        "default": false
-                    },
-                    {
-                        "name": "lang",
-                        "type": "?string",
-                        "default": null
-                    }
-                ],
-                "return": "array"
-            },
             "stack": {
                 "parameters": [
                     {
@@ -2096,54 +2035,6 @@
                     },
                     {
                         "name": "lang",
-                        "type": "?string",
-                        "default": null
-                    }
-                ],
-                "return": "array"
-            },
-            "tariff": {
-                "parameters": [
-                    {
-                        "name": "code",
-                        "type": "string"
-                    },
-                    {
-                        "name": "deep",
-                        "type": "bool",
-                        "default": false
-                    },
-                    {
-                        "name": "origin",
-                        "type": "?string",
-                        "default": null
-                    },
-                    {
-                        "name": "edition",
-                        "type": "?string",
-                        "default": null
-                    },
-                    {
-                        "name": "date",
-                        "type": "?string",
-                        "default": null
-                    }
-                ],
-                "return": "array"
-            },
-            "tariffSearch": {
-                "parameters": [
-                    {
-                        "name": "query",
-                        "type": "string"
-                    },
-                    {
-                        "name": "edition",
-                        "type": "?string",
-                        "default": null
-                    },
-                    {
-                        "name": "date",
                         "type": "?string",
                         "default": null
                     }
@@ -2395,30 +2286,6 @@
                         "name": "deep",
                         "type": "bool",
                         "default": false
-                    }
-                ],
-                "return": "array"
-            },
-            "vat": {
-                "parameters": [
-                    {
-                        "name": "number",
-                        "type": "string"
-                    },
-                    {
-                        "name": "country",
-                        "type": "?string",
-                        "default": null
-                    },
-                    {
-                        "name": "deep",
-                        "type": "bool",
-                        "default": false
-                    },
-                    {
-                        "name": "from",
-                        "type": "?string",
-                        "default": null
                     }
                 ],
                 "return": "array"

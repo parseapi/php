@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.10.1';
+	public const VERSION = '1.10.2';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -97,15 +97,9 @@ final class Client
 		return $this->get('/continent/' . rawurlencode($code) . '/countries', ['lang' => $lang]);
 	}
 
-	public function bloc(string $code): array
-	{
-		return $this->get('/bloc/' . rawurlencode($code));
-	}
 
-	public function blocCountries(string $code, ?string $lang = null): array
-	{
-		return $this->get('/bloc/' . rawurlencode($code) . '/countries', ['lang' => $lang]);
-	}
+
+
 
 	public function country(string $code, bool $deep = false, ?string $lang = null): array
 	{
@@ -271,15 +265,7 @@ final class Client
 		return $this->get('/email/' . rawurlencode($email), ['deep' => $deep]);
 	}
 
-	/**
-	 * Check VAT format and checksum. Deep requests a metered registry check where supported. Deep
-	 * checks use one attempt by default. Supply your own VAT number for a consultation reference
-	 * when supported.
-	 */
-	public function vat(string $number, ?string $country = null, bool $deep = false, ?string $from = null): array
-	{
-		return $this->get('/vat/' . rawurlencode($number), ['country' => $country, 'deep' => $deep, 'from' => $from]);
-	}
+
 
 	public function iban(string $iban, ?string $country = null, bool $deep = false): array
 	{
@@ -294,10 +280,7 @@ final class Client
 
 
 
-	public function npi(string $npi, bool $deep = false, ?string $lang = null): array
-	{
-		return $this->get('/npi/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
-	}
+
 
 
 	public function bank(string $iban, ?string $country = null, bool $deep = false): array
@@ -327,10 +310,7 @@ final class Client
 		return $this->get('/bank/requirements', ['country' => $country, 'format' => $format]);
 	}
 
-	public function provider(string $npi, bool $deep = false, ?string $lang = null): array
-	{
-		return $this->get('/provider/' . rawurlencode($npi), ['deep' => $deep, 'lang' => $lang]);
-	}
+
 
 	/**
 	 * Parse a phone number and its formats. Pass country for national numbers when needed. Deep
@@ -432,21 +412,7 @@ final class Client
 		return $this->get('/industry', ['q' => $query, 'limit' => $limit, 'deep' => $deep]);
 	}
 
-	/**
-	 * Look up the general US duty schedule line. Paid deep adds units and the special and other
-	 * schedule columns. Add origin with deep to resolve country-specific measures. Without origin,
-	 * schedule detail remains available and origin-dependent fields are null. A null effective rate is
-	 * not a zero rate.
-	 */
-	public function tariff(string $code, bool $deep = false, ?string $origin = null, ?string $edition = null, ?string $date = null): array
-	{
-		return self::tariffSelection($this->get('/tariff/' . rawurlencode($code), ['deep' => $deep, 'origin' => $origin, 'edition' => $edition, 'date' => $date]), $edition, $date);
-	}
 
-	public function tariffSearch(string $query, ?string $edition = null, ?string $date = null): array
-	{
-		return self::tariffSelection($this->get('/tariff', ['q' => $query, 'edition' => $edition, 'date' => $date]), $edition, $date);
-	}
 
 	public function currency(string $code, bool $deep = false, ?string $lang = null): array
 	{
@@ -630,18 +596,9 @@ final class Client
 		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit, 'lang' => $lang]);
 	}
 
-	private static function tariffEditionId(mixed $value): bool
-    {
-        return is_string($value) && (preg_match('/\A[a-f0-9]{64}\z/', $value) === 1 || (preg_match('/\Ated_[1-9][0-9]{0,19}\z/', $value) === 1 && (strlen($value) < 24 || strcmp(substr($value, 4), '18446744073709551615') <= 0)));
-    }
 
-	private static function tariffSelection(array $result, ?string $edition, ?string $date): array
-	{
-		if (($edition !== null || $date !== null) && (!self::tariffEditionId($result['edition'] ?? null) || ($edition !== null && $result['edition'] !== $edition) || ($result['date'] ?? null) !== $date)) {
-			throw new ParseAPIError(0, 'tariff_selection_mismatch', 'Tariff response did not confirm the requested edition/date. The server may not support this selection.');
-		}
-		return $result;
-	}
+
+
 
 	private function timeoutFor(string $path): float
 	{

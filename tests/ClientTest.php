@@ -254,8 +254,6 @@ final class ClientTest extends TestCase
 			'ip deep' => [fn (Client $p) => $p->ip('8.8.8.8', deep: true), 'https://api.parseapi.com/ip/8.8.8.8?deep=true'],
 			'continent' => [fn (Client $p) => $p->continent('NA'), 'https://api.parseapi.com/continent/NA'],
 			'continentCountries' => [fn (Client $p) => $p->continentCountries('NA'), 'https://api.parseapi.com/continent/NA/countries'],
-			'bloc' => [fn (Client $p) => $p->bloc('EU'), 'https://api.parseapi.com/bloc/EU'],
-			'blocCountries' => [fn (Client $p) => $p->blocCountries('SCHENGEN'), 'https://api.parseapi.com/bloc/SCHENGEN/countries'],
 			'country' => [fn (Client $p) => $p->country('US'), 'https://api.parseapi.com/country/US'],
 			'countryStates' => [fn (Client $p) => $p->countryStates('US'), 'https://api.parseapi.com/country/US/states'],
 			'state' => [fn (Client $p) => $p->state('NC', 'US'), 'https://api.parseapi.com/state/NC?country=US'],
@@ -275,11 +273,8 @@ final class ClientTest extends TestCase
 			'addressSearch' => [fn (Client $p) => $p->addressSearch('123 main', country: 'US', postal: '27401', city: 'Greensboro', state: 'NC', ip: '8.8.8.8'), 'https://api.parseapi.com/address?q=123+main&country=US&postal=27401&city=Greensboro&state=NC&ip=8.8.8.8'],
 			'company' => [fn (Client $p) => $p->company('732829320', country: 'FR', deep: true), 'https://api.parseapi.com/company/732829320?country=FR&deep=true'],
 			'email' => [fn (Client $p) => $p->email('a@b.com'), 'https://api.parseapi.com/email/a%40b.com'],
-			'vat' => [fn (Client $p) => $p->vat('DE136695976'), 'https://api.parseapi.com/vat/DE136695976'],
 			'bank' => [fn (Client $p) => $p->bank('DE89370400440532013000'), 'https://api.parseapi.com/bank'],
 			'bank country' => [fn (Client $p) => $p->bank('89370400440532013000', 'DE'), 'https://api.parseapi.com/bank'],
-			'npi' => [fn (Client $p) => $p->provider('1881018208'), 'https://api.parseapi.com/provider/1881018208'],
-			'vat from deep' => [fn (Client $p) => $p->vat('DE136695976', from: 'IE6388047V', deep: true), 'https://api.parseapi.com/vat/DE136695976?deep=true&from=IE6388047V'],
 			'phone encodes plus' => [fn (Client $p) => $p->phone('+14155552671', deep: true), 'https://api.parseapi.com/phone/%2B14155552671?deep=true'],
 			'carrier encodes plus' => [fn (Client $p) => $p->carrier('+14155552671'), 'https://api.parseapi.com/carrier/%2B14155552671'],
 			'caller with country' => [fn (Client $p) => $p->caller('4155552671', country: 'US'), 'https://api.parseapi.com/caller/4155552671?country=US'],
@@ -289,8 +284,6 @@ final class ClientTest extends TestCase
 			'mac' => [fn (Client $p) => $p->mac('00:1B:63:84:45:E6'), 'https://api.parseapi.com/mac/00%3A1B%3A63%3A84%3A45%3AE6'],
 			'mx' => [fn (Client $p) => $p->mx('example.com'), 'https://api.parseapi.com/mx/example.com'],
 			'useragent' => [fn (Client $p) => $p->useragent('TestUA/1.0'), 'https://api.parseapi.com/useragent'],
-			'tariff' => [fn (Client $p) => $p->tariff('8471.30.01.00', deep: true, origin: 'CN'), 'https://api.parseapi.com/tariff/8471.30.01.00?deep=true&origin=CN'],
-			'tariffSearch' => [fn (Client $p) => $p->tariffSearch('sunglasses'), 'https://api.parseapi.com/tariff?q=sunglasses'],
 			'currency' => [fn (Client $p) => $p->currency('USD'), 'https://api.parseapi.com/currency/USD'],
 			'currencyRate' => [fn (Client $p) => $p->currencyRate('USD', 'EUR'), 'https://api.parseapi.com/currency/USD/EUR'],
 			'currencyRate date amount' => [fn (Client $p) => $p->currencyRate('USD', 'JPY', date: '2026-08-28', amount: 100), 'https://api.parseapi.com/currency/USD/JPY?date=2026-08-28&amount=100'],
@@ -559,8 +552,6 @@ final class ClientTest extends TestCase
 			'country' => [fn (Client $p) => $p->country('US'), 3],
 			'email core' => [fn (Client $p) => $p->email('hello@example.com'), 3],
 			'email deep' => [fn (Client $p) => $p->email('hello@example.com', deep: true), 1],
-			'vat core' => [fn (Client $p) => $p->vat('DE136695976'), 3],
-			'vat deep' => [fn (Client $p) => $p->vat('DE136695976', deep: true), 1],
 			'carrier' => [fn (Client $p) => $p->carrier('+14155552671'), 1],
 			'caller' => [fn (Client $p) => $p->caller('+14155552671'), 1],
 			'hlr' => [fn (Client $p) => $p->hlr('+447712345678'), 1],
@@ -622,7 +613,7 @@ final class ClientTest extends TestCase
 
 	public function testDisplayLanguageIsPerRequestAndPreservesExistingQueries(): void
 	{
-		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["bloc.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["provider", ["1881018208"], {"deep": true}], ["asn", ["AS13335"], {}], ["currency", ["USD"], {"deep": true}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}], ["measure.units", [], {"query": "meter", "unit": "m"}]]', true, 512, JSON_THROW_ON_ERROR);
+		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["asn", ["AS13335"], {}], ["currency", ["USD"], {"deep": true}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}], ["measure.units", [], {"query": "meter", "unit": "m"}]]', true, 512, JSON_THROW_ON_ERROR);
 		foreach ($operations as [$method, $args, $options]) {
 			$native = preg_replace_callback('/\.([a-z])/', fn ($match) => strtoupper($match[1]), $method);
 			$client = $this->stubClient();
@@ -650,7 +641,7 @@ final class ClientTest extends TestCase
 		$this->assertSame('dmy', $dateQuery['format']);
 		$this->assertSame('de-DE', $measureQuery['locale']);
 		$this->assertArrayNotHasKey('lang', $measureQuery);
-		foreach (['bloc', 'currencyRate', 'measure', 'holiday', 'name', 'email', 'phone', 'address'] as $method) {
+		foreach (['currencyRate', 'measure', 'holiday', 'name', 'email', 'phone', 'address'] as $method) {
 			$names = array_map(fn ($parameter) => $parameter->getName(), (new \ReflectionMethod(Client::class, $method))->getParameters());
 			$this->assertNotContains('lang', $names, $method);
 		}
