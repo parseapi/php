@@ -98,8 +98,6 @@ expectOk('measureUnits', fn () => $parse->measureUnits(unit: 'm'), fn ($r) => in
 expectOk('dns', fn () => $parse->dns('example.com', type: 'A'), fn ($r) => count(array_filter($r['records'], fn ($record) => $record['type'] === 'A' && is_int($record['ttl']))) > 0 ? null : 'no A records');
 expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? null : 'no mx');
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
-expectOk('vin', fn () => $parse->vin('1HGCM82633A004352'), fn ($r) => ($r['valid'] === true && $r['make'] === 'Honda' && $r['year'] === 2003) ? null : 'wrong decode');
-expectOk('vin junk', fn () => $parse->vin('1HGCM82613A004352'), fn ($r) => ($r['valid'] === false) ? null : 'expected invalid');
 expectOk('tariff', fn () => $parse->tariff('8471.30.01.00'), fn ($r) => is_string($r['hts']) ? null : 'missing hts');
 expectOk('tariffSearch', fn () => $parse->tariffSearch('sunglasses'), fn ($r) => is_array($r['lines']) ? null : 'missing lines');
 expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] === '$' ? null : 'wrong symbol');

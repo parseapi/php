@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.10.0';
+	public const VERSION = '1.10.1';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -410,15 +410,7 @@ final class Client
 		return $this->get('/useragent', ['deep' => $deep], ['User-Agent' => $ua]);
 	}
 
-	public function vehicle(string $vin, bool $deep = false): array
-	{
-		return $this->get('/vehicle/' . rawurlencode($vin), ['deep' => $deep]);
-	}
 
-	public function vin(string $vin, bool $deep = false): array
-	{
-		return $this->get('/vin/' . rawurlencode($vin), ['deep' => $deep]);
-	}
 
 	/** US NAICS 2022 definition and hierarchy. */
 	/** Compatibility name for industry. */
