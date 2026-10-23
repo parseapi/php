@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.10.2';
+	public const VERSION = '1.10.3';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -267,10 +267,7 @@ final class Client
 
 
 
-	public function iban(string $iban, ?string $country = null, bool $deep = false): array
-	{
-		return $this->get('/iban/' . rawurlencode($iban), ['country' => $country, 'deep' => $deep]);
-	}
+
 
 
 	public function bin(string $bin, bool $deep = false): array
@@ -283,10 +280,7 @@ final class Client
 
 
 
-	public function bank(string $iban, ?string $country = null, bool $deep = false): array
-	{
-		return $this->get('/bank', [], [], array_filter(['iban' => $iban, 'country' => $country, 'deep' => $deep], static fn($value) => $value !== null));
-	}
+
 
 	/** Look up a 2-11 digit card prefix, preserving leading zeros. @param string $bin */
 	public function card(mixed $bin, bool $deep = false): array
@@ -298,17 +292,9 @@ final class Client
 	}
 
 
-	/** US routing/account syntax only; not account or ACH eligibility verification. */
-	public function bankUsAch(string $routing, string $account): array
-	{
-		return $this->get('/bank', [], [], ['format' => 'us_ach', 'country' => 'US', 'routing' => $routing, 'account' => $account]);
-	}
 
-	/** Describe accepted fields and check scope, not directory completeness. */
-	public function bankRequirements(string $country, ?string $format = null): array
-	{
-		return $this->get('/bank/requirements', ['country' => $country, 'format' => $format]);
-	}
+
+
 
 
 

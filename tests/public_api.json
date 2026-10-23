@@ -103,52 +103,6 @@
                 ],
                 "return": "array"
             },
-            "bank": {
-                "parameters": [
-                    {
-                        "name": "iban",
-                        "type": "string"
-                    },
-                    {
-                        "name": "country",
-                        "type": "?string",
-                        "default": null
-                    },
-                    {
-                        "name": "deep",
-                        "type": "bool",
-                        "default": false
-                    }
-                ],
-                "return": "array"
-            },
-            "bankRequirements": {
-                "parameters": [
-                    {
-                        "name": "country",
-                        "type": "string"
-                    },
-                    {
-                        "name": "format",
-                        "type": "?string",
-                        "default": null
-                    }
-                ],
-                "return": "array"
-            },
-            "bankUsAch": {
-                "parameters": [
-                    {
-                        "name": "routing",
-                        "type": "string"
-                    },
-                    {
-                        "name": "account",
-                        "type": "string"
-                    }
-                ],
-                "return": "array"
-            },
             "bin": {
                 "parameters": [
                     {
@@ -1613,25 +1567,6 @@
                     {
                         "name": "date",
                         "type": "string"
-                    }
-                ],
-                "return": "array"
-            },
-            "iban": {
-                "parameters": [
-                    {
-                        "name": "iban",
-                        "type": "string"
-                    },
-                    {
-                        "name": "country",
-                        "type": "?string",
-                        "default": null
-                    },
-                    {
-                        "name": "deep",
-                        "type": "bool",
-                        "default": false
                     }
                 ],
                 "return": "array"
