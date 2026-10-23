@@ -92,16 +92,11 @@ expectOk('caller junk free', fn () => $parse->caller('555-0100'), fn ($r) => $r[
 expectOk('hlr junk free', fn () => $parse->hlr('555-0100'), fn ($r) => $r['valid'] === false ? null : 'expected invalid');
 expectOk('domain', fn () => $parse->domain('gmail.com'), fn ($r) => $r['available'] === false ? null : 'gmail available?');
 expectOk('asn', fn () => $parse->asn('AS13335'), fn ($r) => $r['asn'] === 13335 ? null : 'wrong ASN');
-expectOk('mac', fn () => $parse->mac('00:1B:63:84:45:E6'), fn ($r) => $r['valid'] && $r['mac'] === '00:1B:63:84:45:E6' && $r['local'] === false && $r['multicast'] === false ? null : 'wrong MAC');
-expectOk('measure', fn () => $parse->measure('5 ft 11 in', to: 'cm'), fn ($r) => $r['valid'] && $r['amount'] === '180.34' && $r['unit'] === 'cm' ? null : 'wrong conversion');
-expectOk('measureUnits', fn () => $parse->measureUnits(unit: 'm'), fn ($r) => in_array('m', array_column($r['units'], 'unit'), true) ? null : 'missing metre');
 expectOk('dns', fn () => $parse->dns('example.com', type: 'A'), fn ($r) => count(array_filter($r['records'], fn ($record) => $record['type'] === 'A' && is_int($record['ttl']))) > 0 ? null : 'no A records');
 expectOk('mx', fn () => $parse->mx('gmail.com'), fn ($r) => !empty($r['mx']) ? null : 'no mx');
 expectOk('useragent', fn () => $parse->useragent(UA), fn ($r) => $r['browser'] === 'Chrome' ? null : "browser {$r['browser']}");
 
 
-expectOk('currency', fn () => $parse->currency('USD'), fn ($r) => $r['symbol'] === '$' ? null : 'wrong symbol');
-expectOk('currencyRate', fn () => $parse->currencyRate('USD', 'EUR'), fn ($r) => $r['rate'] > 0 && $r['rate'] < 10 ? null : 'bad rate');
 expectOk('language', fn () => $parse->language('en'), fn ($r) => ($r['language'] === 'en' && $r['name'] === 'English') ? null : 'wrong language');
 expectOk('name', fn () => $parse->name("BILLY O'SHALL"), fn ($r) => ($r['name'] === "Billy O'Shall" && $r['valid'] === true) ? null : 'wrong name');
 expectOk('timezone', fn () => $parse->timezone('America/New_York'), fn ($r) => in_array($r['offset'], ['-04:00', '-05:00'], true) ? null : "offset {$r['offset']}");

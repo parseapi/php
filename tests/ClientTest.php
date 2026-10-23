@@ -128,16 +128,6 @@ final class ClientTest extends TestCase
 		);
 	}
 
-	public function testMeasureDecimalAndAmbiguity(): void
-	{
-		foreach ([
-			['measure' => '0 m', 'valid' => true, 'type' => 'future-type', 'amount' => '0', 'unit' => 'm', 'reason' => null, 'choices' => [], 'future' => null],
-			['measure' => '1 gallon', 'valid' => false, 'type' => null, 'amount' => null, 'unit' => null, 'reason' => 'ambiguous_unit', 'choices' => [['unit' => 'us_gal', 'name' => 'US liquid gallon']]],
-		] as $body) {
-			$client = $this->stubClient([[200, [], json_encode($body, JSON_THROW_ON_ERROR)]]);
-			$this->assertSame($body, $client->measure($body['measure']));
-		}
-	}
 
 	public function testDnsPreservesPresentationAndEmptyRecords(): void
 	{
@@ -170,21 +160,10 @@ final class ClientTest extends TestCase
 		}
 	}
 
-	public function testMeasureBadTargetUsesApiError(): void
-	{
-		$client = $this->stubClient([[400, [], '{"code":"bad_request","message":"Incompatible units","request_id":"req_measure"}']], null);
-		try {
-			$client->measure('1 m', to: 'kg');
-			$this->fail('Expected an API error');
-		} catch (ParseAPIError $error) {
-			$this->assertSame('bad_request', $error->errorCode);
-			$this->assertCount(1, $this->calls);
-		}
-	}
 
 	public function testAdpOptionalDepth(): void
 	{
-		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["currency", ["USD"], {}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
+		$rows = json_decode('[["country", ["US"], {}], ["state", ["NC"], {"country": "US"}], ["state.districts", ["NC"], {"country": "US"}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["Charlotte"], {"country": "US", "state": "NC"}], ["city.id", ["city_test"], {}], ["city.search", ["Charlotte"], {"country": "US", "state": "NC", "limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["Charlotte"], {"radius": 0, "unit": "km", "country": "US", "state": "NC", "limit": 2}], ["postal", ["28202"], {"country": "US"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0, "unit": "km"}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["carrier", ["+14155552671"], {"country": "US"}], ["hlr", ["+447712345678"], {"country": "GB"}], ["naics", ["31-33"], {}], ["naics.search", ["coffee"], {"limit": 2}], ["language", ["ar"], {}], ["name", ["Andrea"], {"country": "IT"}], ["time", [], {"at": "2026-09-08", "to": "UTC"}], ["time.at", [0, 0], {"at": "2026-09-08", "to": "UTC"}], ["timezone", ["UTC"], {"at": "2026-09-08", "to": "UTC"}], ["timezone.at", [0, 0], {"at": "2026-09-08"}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-09-08"}], ["date.today", [], {"to": "2026-09-08"}], ["emoji", ["fire"], {}], ["emoji.search", ["fire"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
 		foreach ($rows as [$method, $args, $options]) {
 			$native = preg_replace_callback('/\.([a-z])/', fn ($m) => strtoupper($m[1]), $method);
 			$client = $this->stubClient();
@@ -215,10 +194,6 @@ final class ClientTest extends TestCase
 			'naics encoded' => [fn (Client $p) => $p->industry('54/11'), 'https://api.parseapi.com/industry/54%2F11'],
 			'industrySearch' => [fn (Client $p) => $p->industrySearch('coffee & tea', limit: 5), 'https://api.parseapi.com/industry?q=coffee+%26+tea&limit=5'],
 			'industrySearch default' => [fn (Client $p) => $p->industrySearch('plumbing'), 'https://api.parseapi.com/industry?q=plumbing'],
-			'measure' => [fn (Client $p) => $p->measure('5 ft 11 in', to: 'cm', locale: 'en-US', system: 'us'), 'https://api.parseapi.com/measure/5%20ft%2011%20in?to=cm&locale=en-US&system=us'],
-			'measure compound' => [fn (Client $p) => $p->measure('1 kg/m^3', to: 'g/L'), 'https://api.parseapi.com/measure/1%20kg%2Fm%5E3?to=g%2FL'],
-			'measureUnits' => [fn (Client $p) => $p->measureUnits(query: 'US gallon', type: 'volume', unit: 'L'), 'https://api.parseapi.com/measure/units?q=US+gallon&type=volume&unit=L'],
-			'measureUnits all' => [fn (Client $p) => $p->measureUnits(), 'https://api.parseapi.com/measure/units'],
 			'ip' => [fn (Client $p) => $p->ip('8.8.8.8'), 'https://api.parseapi.com/ip/8.8.8.8'],
 			'ipSelf' => [fn (Client $p) => $p->ipSelf(), 'https://api.parseapi.com/ip'],
 			'ip deep' => [fn (Client $p) => $p->ip('8.8.8.8', deep: true), 'https://api.parseapi.com/ip/8.8.8.8?deep=true'],
@@ -249,12 +224,8 @@ final class ClientTest extends TestCase
 			'hlr' => [fn (Client $p) => $p->hlr('+447712345678'), 'https://api.parseapi.com/hlr/%2B447712345678'],
 			'domain' => [fn (Client $p) => $p->domain('example.com'), 'https://api.parseapi.com/domain/example.com'],
 			'asn' => [fn (Client $p) => $p->asn('AS13335'), 'https://api.parseapi.com/asn/AS13335'],
-			'mac' => [fn (Client $p) => $p->mac('00:1B:63:84:45:E6'), 'https://api.parseapi.com/mac/00%3A1B%3A63%3A84%3A45%3AE6'],
 			'mx' => [fn (Client $p) => $p->mx('example.com'), 'https://api.parseapi.com/mx/example.com'],
 			'useragent' => [fn (Client $p) => $p->useragent('TestUA/1.0'), 'https://api.parseapi.com/useragent'],
-			'currency' => [fn (Client $p) => $p->currency('USD'), 'https://api.parseapi.com/currency/USD'],
-			'currencyRate' => [fn (Client $p) => $p->currencyRate('USD', 'EUR'), 'https://api.parseapi.com/currency/USD/EUR'],
-			'currencyRate date amount' => [fn (Client $p) => $p->currencyRate('USD', 'JPY', date: '2026-08-28', amount: 100), 'https://api.parseapi.com/currency/USD/JPY?date=2026-08-28&amount=100'],
 			'language' => [fn (Client $p) => $p->language('en'), 'https://api.parseapi.com/language/en'],
 			'name encodes spaces' => [fn (Client $p) => $p->name('Smith, John'), 'https://api.parseapi.com/name/Smith%2C%20John'],
 			'time compatible' => [fn (Client $p) => $p->time('America/New_York', at: '2026-11-01T01:30:00', to: 'UTC', disambiguation: 'compatible'), 'https://api.parseapi.com/time/America%2FNew_York?at=2026-11-01T01%3A30%3A00&to=UTC&disambiguation=compatible'],
@@ -581,7 +552,7 @@ final class ClientTest extends TestCase
 
 	public function testDisplayLanguageIsPerRequestAndPreservesExistingQueries(): void
 	{
-		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["asn", ["AS13335"], {}], ["currency", ["USD"], {"deep": true}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}], ["measure.units", [], {"query": "meter", "unit": "m"}]]', true, 512, JSON_THROW_ON_ERROR);
+		$operations = json_decode('[["ip", ["8.8.8.8"], {"deep": true}], ["ip.self", [], {"deep": true}], ["continent", ["EU"], {}], ["continent.countries", ["EU"], {}], ["country", ["DE"], {"deep": true}], ["country.states", ["DE"], {}], ["state", ["CA"], {"country": "US"}], ["state.districts", ["CA"], {"country": "US", "deep": true}], ["district", ["37081"], {"country": "US", "state": "NC"}], ["city", ["München"], {"country": "DE"}], ["city.id", ["city_fixture"], {"deep": true}], ["city.search", ["Mün"], {"limit": 2}], ["city.nearest", [0, 0], {}], ["city.nearby", ["München"], {"radius": 0, "unit": "km"}], ["postal", ["SW1A 1AA"], {"country": "GB"}], ["postal.nearby", ["28202"], {"country": "US", "radius": 0}], ["postal.distance", ["28202", "10001"], {"country": "US"}], ["company", ["732829320"], {"country": "FR", "deep": true}], ["asn", ["AS13335"], {}], ["language", ["ja"], {}], ["time", ["America/New_York"], {"at": "2026-01-01T12:00", "to": "UTC", "deep": true}], ["time.at", [0, 0], {"at": "2026-01-01T12:00Z"}], ["timezone", ["UTC"], {"deep": true}], ["timezone.at", [0, 0], {"deep": true}], ["date", ["03/04/2026"], {"format": "dmy", "to": "2026-05-01", "deep": true}], ["date.today", [], {"to": "2026-05-01"}], ["point", [0, 0], {"deep": true}], ["emoji", ["😀"], {"deep": true}], ["emoji.search", ["visage"], {"limit": 2}]]', true, 512, JSON_THROW_ON_ERROR);
 		foreach ($operations as [$method, $args, $options]) {
 			$native = preg_replace_callback('/\.([a-z])/', fn ($match) => strtoupper($match[1]), $method);
 			$client = $this->stubClient();
@@ -603,13 +574,9 @@ final class ClientTest extends TestCase
 		$body = ['name' => 'Nom traduit', 'name_local' => 'Native name', 'future' => null];
 		$client = $this->stubClient([[200, [], json_encode($body)], [200, [], '{}']]);
 		$this->assertSame($body, $client->date('03/04/2026', format: 'dmy', lang: 'en-US'));
-		$client->measure('1,5 m', locale: 'de-DE', to: 'cm');
 		parse_str(parse_url($this->calls[0]['url'], PHP_URL_QUERY), $dateQuery);
-		parse_str(parse_url($this->calls[1]['url'], PHP_URL_QUERY), $measureQuery);
 		$this->assertSame('dmy', $dateQuery['format']);
-		$this->assertSame('de-DE', $measureQuery['locale']);
-		$this->assertArrayNotHasKey('lang', $measureQuery);
-		foreach (['currencyRate', 'measure', 'holiday', 'name', 'email', 'phone', 'address'] as $method) {
+		foreach (['holiday', 'name', 'email', 'phone', 'address'] as $method) {
 			$names = array_map(fn ($parameter) => $parameter->getName(), (new \ReflectionMethod(Client::class, $method))->getParameters());
 			$this->assertNotContains('lang', $names, $method);
 		}

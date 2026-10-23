@@ -3,7 +3,7 @@
 	"description": "Official ParseAPI client for PHP. One key, minimal JSON, fast.",
 	"type": "library",
 	"license": "MIT",
-	"keywords": ["parseapi", "ip", "geolocation", "email validation", "phone validation", "postal", "timezone", "currency", "weather"],
+	"keywords": ["parseapi", "ip", "geolocation", "email validation", "phone validation", "postal", "timezone", "weather"],
 	"homepage": "https://parseapi.com",
 	"support": {
 		"docs": "https://parseapi.com/docs",

@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.10.3';
+	public const VERSION = '1.10.4';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -353,10 +353,6 @@ final class Client
 		return $this->get('/asn/' . rawurlencode($asn), ['lang' => $lang]);
 	}
 
-	public function mac(string $mac): array
-	{
-		return $this->get('/mac/' . rawurlencode($mac));
-	}
 
 	/** Published DNS records with TTLs. Omit type to check all supported types.
 	 * Type selects the question, including its CNAME chain. Pooled on every plan.
@@ -400,18 +396,7 @@ final class Client
 
 
 
-	public function currency(string $code, bool $deep = false, ?string $lang = null): array
-	{
-		return $this->get('/currency/' . rawurlencode($code), ['deep' => $deep, 'lang' => $lang]);
-	}
 
-	public function currencyRate(string $base, string $quote, ?string $date = null, ?float $amount = null): array
-	{
-		return $this->get('/currency/' . rawurlencode($base) . '/' . rawurlencode($quote), [
-			'date' => $date,
-			'amount' => $amount,
-		]);
-	}
 
 	public function language(string $code, bool $deep = false, ?string $lang = null): array
 	{
@@ -567,23 +552,6 @@ final class Client
 	}
 
 	// --- Transport ---
-
-	/** Parse or convert a measurement. Amount is a decimal string. Without to, use the
-	 * type's canonical unit. Locale and system (us or imperial) resolve explicit ambiguity.
-	 * Successful JSON omits reason and choices. Invalid input adds reason and alternatives add choices. */
-	public function measure(string $measure, ?string $to = null, ?string $locale = null, ?string $system = null): array
-	{
-		return $this->get('/measure/' . rawurlencode($measure), ['to' => $to, 'locale' => $locale, 'system' => $system]);
-	}
-
-	/** Discover reviewed units. unit filters compatible conversion targets. */
-	public function measureUnits(?string $query = null, ?string $type = null, ?string $unit = null, ?string $lang = null): array
-	{
-		return $this->get('/measure/units', ['q' => $query, 'type' => $type, 'unit' => $unit, 'lang' => $lang]);
-	}
-
-
-
 
 
 	private function timeoutFor(string $path): float
