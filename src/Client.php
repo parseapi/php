@@ -334,7 +334,7 @@ final class Client
 	}
 
 	/** Identify website technologies and versions by category.
-	 * All categories are lists. Scope, pages and partial describe bounded coverage.
+	 * Categories are arrays or null.
 	 * Lists are null when no page could be checked and empty for no matches.
 	 */
 	public function stack(string $domain, bool $deep = false, bool $pretty = false): array
