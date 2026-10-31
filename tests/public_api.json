@@ -1133,6 +1133,48 @@
         ],
         "return": "array"
       },
+      "currency": {
+        "parameters": [
+          {
+            "name": "code",
+            "type": "string"
+          },
+          {
+            "name": "deep",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "lang",
+            "type": "?string",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
+      "currencyRate": {
+        "parameters": [
+          {
+            "name": "base",
+            "type": "string"
+          },
+          {
+            "name": "quote",
+            "type": "string"
+          },
+          {
+            "name": "date",
+            "type": "?string",
+            "default": null
+          },
+          {
+            "name": "amount",
+            "type": "?float",
+            "default": null
+          }
+        ],
+        "return": "array"
+      },
       "date": {
         "parameters": [
           {

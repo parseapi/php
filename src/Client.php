@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.10.6';
+	public const VERSION = '1.11.0';
 	private const API_VERSION = '2.0.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -397,6 +397,19 @@ final class Client
 
 
 
+
+	public function currency(string $code, bool $deep = false, ?string $lang = null): array
+	{
+		return $this->get('/currency/' . rawurlencode($code), ['deep' => $deep, 'lang' => $lang]);
+	}
+
+	public function currencyRate(string $base, string $quote, ?string $date = null, ?float $amount = null): array
+	{
+		return $this->get('/currency/' . rawurlencode($base) . '/' . rawurlencode($quote), [
+			'date' => $date,
+			'amount' => $amount,
+		]);
+	}
 
 	public function language(string $code, bool $deep = false, ?string $lang = null): array
 	{
