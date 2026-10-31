@@ -63,7 +63,7 @@ expectOk('continent', fn () => $parse->continent('NA'), fn ($r) => $r['name'] ==
 expectOk('continentCountries', fn () => $parse->continentCountries('NA'), fn ($r) => !empty($r['countries']) ? null : 'empty');
 
 
-expectOk('country', fn () => $parse->country('US'), fn ($r) => $r['iso3'] === 'USA' ? null : 'wrong iso3');
+expectOk('country', fn () => $parse->country('US'), fn ($r) => (array_key_exists('iso_alpha3', $r) ? $r['iso_alpha3'] : ($r['iso3'] ?? null)) === 'USA' ? null : 'wrong country alpha-3 code');
 expectOk('countryStates', fn () => $parse->countryStates('US'), fn ($r) => count($r['states']) >= 50 ? null : 'too few');
 expectOk('state', fn () => $parse->state('NC', country: 'US'), fn ($r) => $r['name'] === 'North Carolina' ? null : 'wrong');
 expectOk('stateDistricts', fn () => $parse->stateDistricts('NC', country: 'US'), fn ($r) => !empty($r['districts']) ? null : 'empty');
