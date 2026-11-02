@@ -249,12 +249,6 @@ final class Client
 		return $this->get('/company', ['q' => $query, 'domain' => $domain, 'ticker' => $ticker, 'identifier' => $identifier, 'country' => $country, 'exchange' => $exchange, 'authority' => $authority, 'limit' => $limit, 'cursor' => $cursor, 'deep' => $deep, 'industry' => $industry, 'industry_type' => $industryType]);
 	}
 
-	/** Read the directory edition and source coverage. */
-	public function companyCoverage(): array
-	{
-		return $this->get('/company/directory/coverage');
-	}
-
 	/**
 	 * Parse an email and check its format and domain. Deep explicitly requests a metered
 	 * deliverability check. Deep checks use one attempt by default. An explicit retry count can

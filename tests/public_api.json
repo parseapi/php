@@ -989,10 +989,6 @@
         ],
         "return": "array"
       },
-      "companyCoverage": {
-        "parameters": [],
-        "return": "array"
-      },
       "companyId": {
         "parameters": [
           {
