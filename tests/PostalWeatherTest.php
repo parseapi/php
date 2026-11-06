@@ -22,8 +22,8 @@ final class PostalWeatherTest extends TestCase
         foreach ($calls as [$url, $headers]) {
             $this->assertSame('parseapi-php/' . Client::VERSION, $headers['User-Agent']);
         }
-        $this->assertSame(['annual_median' => 0], $fixtures['postal_compact']['deep']['property_tax']);
-        $this->assertNull($fixtures['weather_current']['deep']['forecast']);
-        $this->assertSame([], $fixtures['weather_current']['deep']['alerts']);
+        $this->assertSame(['annual_median' => 0], $fixtures['postal_compact']['property_tax']);
+        $this->assertNull($fixtures['weather_current']['forecast']);
+        $this->assertSame([], $fixtures['weather_current']['alerts']);
     }
 }

@@ -14,7 +14,7 @@ final class CityQueriesTest extends TestCase
     {
         $calls = [];
         $client = new Client('fixture', retries: 0, transport: function ($url) use (&$calls) { $calls[] = $url; return [200, [], '{}']; });
-        $filters = ['minPopulation' => 0, 'maxPopulation' => 5000000, 'timezone' => 'Asia/Tokyo', 'bbox' => '170,-20,-170,20', 'sort' => 'population', 'order' => 'desc', 'cursor' => 'opaque+/=cursor?&'];
+        $filters = ['minPopulation' => 0, 'maxPopulation' => 5000000, 'timezones' => ['Asia/Tokyo'], 'bbox' => '170,-20,-170,20', 'sort' => '-population', 'cursor' => 'opaque+/=cursor?&'];
         $client->cityList(...array_merge(['country' => 'JP', 'limit' => 5, 'hierarchy' => true], $filters));
         $client->cityNearbyCoords(0, 0, ...array_merge(['radius' => 20, 'unit' => 'mi', 'country' => 'JP', 'state' => '27'], $filters));
         $client->citySearch('Sak', ...array_merge(['page' => true], $filters));
@@ -22,7 +22,7 @@ final class CityQueriesTest extends TestCase
         foreach ($calls as $index => $url) {
             parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $query);
             $this->assertSame('/city' . ($index === 3 ? '/Sakai/nearby' : ''), parse_url($url, PHP_URL_PATH));
-            foreach (['min_population' => '0', 'max_population' => '5000000', 'timezone' => 'Asia/Tokyo', 'bbox' => '170,-20,-170,20', 'sort' => 'population', 'order' => 'desc', 'cursor' => 'opaque+/=cursor?&'] as $name => $value) { $this->assertSame($value, $query[$name]); }
+            foreach (['min_population' => '0', 'max_population' => '5000000', 'timezones' => 'Asia/Tokyo', 'bbox' => '170,-20,-170,20', 'sort' => '-population', 'cursor' => 'opaque+/=cursor?&'] as $name => $value) { $this->assertSame($value, $query[$name]); }
             if ($index < 2) { $this->assertArrayNotHasKey('page', $query); } else { $this->assertSame('true', $query['page']); }
         }
         parse_str(parse_url($calls[0], PHP_URL_QUERY), $browse); $this->assertSame('true', $browse['browse']);
@@ -34,7 +34,7 @@ final class CityQueriesTest extends TestCase
         $calls = [];
         $client = new Client('fixture', retries: 0, transport: function ($url) use (&$calls) { $calls[] = $url; return [200, [], '{}']; });
         $client->cityList(); $client->cityNearbyCoords(0, 0); $client->citySearch('Sak', cursor: 'opaque');
-        foreach (['browse=true&format=list', 'lat=0&lon=0&nearby=true&format=list', 'q=Sak&cursor=opaque'] as $index => $expected) { parse_str($expected, $want); parse_str(parse_url($calls[$index], PHP_URL_QUERY), $got); $this->assertEquals($want, $got); }
+        foreach (['browse=true', 'lat=0&lon=0&nearby=true', 'q=Sak&cursor=opaque'] as $index => $expected) { parse_str($expected, $want); parse_str(parse_url($calls[$index], PHP_URL_QUERY), $got); $this->assertEquals($want, $got); }
     }
 
     public function testPaginationPassesThroughAndInvalidCursorUsesExistingError(): void

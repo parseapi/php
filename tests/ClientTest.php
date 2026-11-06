@@ -45,7 +45,7 @@ final class ClientTest extends TestCase
 			$this->assertSame($body, $client->stack('example.com'));
 			$this->assertSame('https://api.parseapi.com/stack/b%C3%BCcher.example?deep=true&pretty=true', $this->calls[0]['url']);
 			$this->assertSame('https://api.parseapi.com/stack/example.com', $this->calls[1]['url']);
-			$this->assertSame('2.0.0', $this->calls[0]['headers']['Parse-Version']);
+			$this->assertSame('2.1.0', $this->calls[0]['headers']['X-API-Version']);
 		}
 	}
 
@@ -93,6 +93,12 @@ final class ClientTest extends TestCase
 		$body = ['bin' => '00123456', 'prefix' => '001234', 'country' => null, 'issuer' => 'Fixture Bank', 'brand' => 'future-brand', 'type' => null, 'prepaid' => false, 'deep' => [], 'future' => true];
 		$client = $this->stubClient([[200, [], '{"bin":"00123456","prefix":"001234","country":null,"issuer":"Fixture Bank","brand":"future-brand","type":null,"prepaid":false,"deep":{},"future":true}']]);
 		$this->assertSame($body, $client->card('00 1234-56'));
+	}
+
+	public function testLegacyBinIsNotAPublicLookup(): void
+	{
+		$this->assertFalse(method_exists(Client::class, 'bin'));
+		$this->assertTrue(method_exists(Client::class, 'card'));
 	}
 
 	public function testPublicApiMatchesTheReviewedManifest(): void

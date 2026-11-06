@@ -23,7 +23,8 @@ final class VersionTest extends TestCase
 		$client->useragent('Custom browser');
 		$this->assertSame(['/country/US', '/country/US', '/ip', '/useragent'], array_map(static fn(array $call): string => parse_url($call[0], PHP_URL_PATH), $calls));
 		foreach ($calls as [$url, $headers]) {
-			$this->assertSame('2.0.0', $headers['Parse-Version']);
+			$this->assertSame('2.1.0', $headers['X-API-Version']);
+			$this->assertArrayNotHasKey('Parse-Version', $headers);
 			$this->assertSame('same-production-key', $headers['X-API-Key']);
 			$this->assertNull(parse_url($url, PHP_URL_QUERY));
 		}

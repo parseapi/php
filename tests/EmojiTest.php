@@ -29,7 +29,7 @@ final class EmojiTest extends TestCase
 		$this->assertSame('https://api.parseapi.com/emoji/parse?deep=true&lang=fr', $calls[4]['url']);
 		$this->assertSame('POST', $calls[4]['method']);
 		$this->assertSame(['text'=>'x 👍🏿 👍🏿'], json_decode($calls[4]['body'],true,512,JSON_THROW_ON_ERROR));
-		$this->assertSame('2.0.0',$calls[4]['headers']['Parse-Version']);
+		$this->assertSame('2.1.0',$calls[4]['headers']['X-API-Version']);
 		$this->assertCount(5, $calls);
 	}
 	public function testFullDownloadMetadataAndArtwork(): void
@@ -41,13 +41,13 @@ final class EmojiTest extends TestCase
 			return [200, [], json_encode(parse_url($url,PHP_URL_PATH) === '/emoji/metadata' ? $bundle['metadata'] : $bundle, JSON_THROW_ON_ERROR)];
 		});
 		$result = $client->emojiCatalog();
-		$this->assertSame('https://api.parseapi.com/emoji/catalog?deep=true',$calls[0]);
+		$this->assertSame('https://api.parseapi.com/emoji/catalog',$calls[0]);
 		$this->assertSame('❤️',$result['forms']['❤']);
-		$this->assertSame([], $result['emojis'][0]['deep']['artwork']);
-		$client->emojiCatalog(deep:false, maxVersion:'17.0', includeSkinTones:false);
-		$this->assertSame('https://api.parseapi.com/emoji/catalog?deep=false&max_version=17.0&include_skin_tones=false',$calls[1]);
-		$this->assertSame('Full source notice',$client->emojiMetadata()['notices'][0]['notice']);
-		$this->assertSame('https://api.parseapi.com/emoji/metadata',$calls[2]);
+		$this->assertSame([], $result['emojis'][0]['artwork']);
+		$client->emojiCatalog( maxVersion:'17.0', includeSkinTones:false);
+		$this->assertSame('https://api.parseapi.com/emoji/catalog?max_version=17.0&include_skin_tones=false',$calls[1]);
+		$this->assertSame('Full source notice',$client->emojiCatalog()['metadata']['notices'][0]['notice']);
+		$this->assertSame('https://api.parseapi.com/emoji/catalog',$calls[2]);
 	}
 
  public function testPrivateConversion(): void
@@ -64,7 +64,7 @@ final class EmojiTest extends TestCase
  {
   $fixture=json_decode(file_get_contents(__DIR__.'/fixtures/emoji-artwork.json'),true,512,JSON_THROW_ON_ERROR);
   $client=new Client('test',transport:fn($url,$headers)=>[200,[],json_encode($fixture['emoji'],JSON_THROW_ON_ERROR)]);
-  $artwork=$client->emoji('rocket',deep:true)['deep']['artwork'];
+  $artwork=$client->emoji('rocket',deep:true)['artwork'];
   $this->assertSame(['noto','twemoji','openmoji'],array_keys($artwork));
   $this->assertSame('https://cdn.parseapi.com/emoji/openmoji/17.0.0/1f680.svg',$artwork['openmoji']['svg']);
   $this->assertSame('https://cdn.parseapi.com/emoji/openmoji/17.0.0/72/1f680.png',$artwork['openmoji']['png']['72']);

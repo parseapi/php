@@ -11,10 +11,10 @@ final class CityCanonicalTest extends TestCase
     {
         $calls = []; $id = 'city_7aj899nvwyku';
         $body = ['object' => 'list', 'data' => [['id' => $id, 'object' => 'city', 'name' => 'Vienna']], 'has_more' => true, 'url' => '/city', 'next_cursor' => 'opaque+/='];
-        $client = new Client('fixture', retries: 0, transport: function ($url, $headers) use (&$calls, &$body) { $calls[] = $url; $this->assertSame('2.0.0', $headers['Parse-Version']); return [200, [], json_encode($body, JSON_THROW_ON_ERROR)]; });
+        $client = new Client('fixture', retries: 0, transport: function ($url, $headers) use (&$calls, &$body) { $calls[] = $url; $this->assertSame('2.1.0', $headers['X-API-Version']); return [200, [], json_encode($body, JSON_THROW_ON_ERROR)]; });
         $this->assertSame($body, $client->cityList(countries: ['AT', 'CH'], excludeCountries: ['JP'], timezones: ['Europe/Vienna'], minElevation: -10, maxElevation: 0, minPopulation: 0, sort: '-population,+name', cursor: 'opaque+/='));
         parse_str(parse_url($calls[0], PHP_URL_QUERY), $query);
-        foreach (['format'=>'list','countries'=>'AT,CH','exclude_countries'=>'JP','timezones'=>'Europe/Vienna','min_elevation'=>'-10','max_elevation'=>'0','min_population'=>'0','sort'=>'-population,+name','cursor'=>'opaque+/='] as $key=>$value) { $this->assertSame($value, $query[$key]); }
+        foreach (['countries'=>'AT,CH','exclude_countries'=>'JP','timezones'=>'Europe/Vienna','min_elevation'=>'-10','max_elevation'=>'0','min_population'=>'0','sort'=>'-population,+name','cursor'=>'opaque+/='] as $key=>$value) { $this->assertSame($value, $query[$key]); }
         foreach ([['cityChildren','children'], ['cityAncestors','ancestors'], ['citySiblings','siblings']] as [$method,$relationship]) {
             $body = ['object'=>'list','data'=>[],'has_more'=>false,'url'=>"/city/id/$id/$relationship",'next_cursor'=>null,'city_id'=>$id,'relationship'=>$relationship,'coverage'=>'partial'];
             $this->assertSame($body, $client->$method($id, ));
@@ -26,7 +26,7 @@ final class CityCanonicalTest extends TestCase
             $this->assertNull(parse_url(end($calls), PHP_URL_QUERY));
         }
         $body = ['id'=>$id,'object'=>'city','name'=>'Vienna'];
-        $this->assertSame($body, $client->city('Vienna', format: 'resource'));
+        $this->assertSame($body, $client->city('Vienna', ));
         $client->city('Vienna'); parse_str(parse_url(end($calls), PHP_URL_QUERY) ?? '', $query); $this->assertArrayNotHasKey('format',$query); $this->assertArrayNotHasKey('fields',$query);
     }
 
@@ -34,7 +34,7 @@ final class CityCanonicalTest extends TestCase
     {
         $url='';$body=['object'=>'list','data'=>[['id'=>'city_7aj899nvwyku','object'=>'city','match'=>['type'=>'fuzzy','source'=>'name','value'=>'Vienna','language'=>null,'edit_distance'=>1]]],'has_more'=>false,'url'=>'/city','next_cursor'=>null];
         $client=new Client('fixture',transport:function($value)use(&$url,$body){$url=$value;return[200,[],json_encode($body,JSON_THROW_ON_ERROR)];});
-        $this->assertSame($body,$client->citySearch('Viena',format:'list',match:'fuzzy',maxDistance:1));parse_str(parse_url($url,PHP_URL_QUERY),$query);$this->assertSame(['format'=>'list','q'=>'Viena','match'=>'fuzzy','max_distance'=>'1'],$query);$client->citySearch('Vi');parse_str(parse_url($url,PHP_URL_QUERY),$query);$this->assertSame(['q'=>'Vi'],$query);
+        $this->assertSame(['q'=>'Viena','cities'=>$body['data'],'next_cursor'=>null],$client->citySearch('Viena',match:'fuzzy',maxDistance:1));parse_str(parse_url($url,PHP_URL_QUERY),$query);$this->assertSame(['q'=>'Viena','match'=>'fuzzy','max_distance'=>'1'],$query);$client->citySearch('Vi');parse_str(parse_url($url,PHP_URL_QUERY),$query);$this->assertSame(['q'=>'Vi'],$query);
     }
 
     public function testBoundedChoicesOnlyOnMatching409AndUnchangedOrdinaryErrors(): void
@@ -51,14 +51,14 @@ final class CityCanonicalTest extends TestCase
     public function testReviewedRomanizedOptIn(): void
     {
         $url='';$payload=['id'=>'city_7aj899nvwyku','object'=>'city','name_romanized'=>'Kitakyūshū','romanization_language'=>'ja-Latn'];$c=new Client('fixture',transport:function($value)use(&$url,&$payload){$url=$value;return[200,[],json_encode($payload,JSON_THROW_ON_ERROR)];});
-        $this->assertSame($payload,$c->cityId('city_7aj899nvwyku',format:'resource',romanized:true));parse_str(parse_url($url,PHP_URL_QUERY),$q);$this->assertSame(['romanized'=>'true','format'=>'resource'],$q);$payload['name_romanized']=null;$payload['romanization_language']=null;$this->assertSame($payload,$c->cityId('city_7aj899nvwyku',format:'resource',romanized:true));
+        $this->assertSame($payload,$c->cityId('city_7aj899nvwyku',romanized:true));parse_str(parse_url($url,PHP_URL_QUERY),$q);$this->assertSame(['romanized'=>'true',],$q);$payload['name_romanized']=null;$payload['romanization_language']=null;$this->assertSame($payload,$c->cityId('city_7aj899nvwyku',romanized:true));
     }
 
     public function testExplicitSpellingRouteAndClassicAdapter(): void {
         $calls=[];$row=['id'=>'city_7aj899nvwyku','object'=>'city','name'=>'Vienna'];
         $c=new Client('fixture',retries:0,transport:function($url)use(&$calls,$row){$path=parse_url($url,PHP_URL_PATH);$calls[]=$path;return [200,[],json_encode($path==='/city/search'?['object'=>'list','data'=>[$row],'q'=>'Viena','has_more'=>false,'url'=>'/city/search','next_cursor'=>null]:['q'=>'Vi','cities'=>[$row]])];});
         $this->assertSame([$row],$c->citySearch('Viena',match:'fuzzy',maxDistance:1)['cities']);
-        $this->assertSame([$row],$c->citySearch('Viena',match:'fuzzy',format:'list')['data']);
+        $this->assertSame([$row],$c->citySearch('Viena',match:'fuzzy',)['cities']);
         $this->assertSame([$row],$c->citySearch('Vi')['cities']);$this->assertSame(['/city/search','/city/search','/city'],$calls);
     }
 

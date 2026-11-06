@@ -12,8 +12,8 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.11.4';
-	private const API_VERSION = '2.0.0';
+	public const VERSION = '1.12.0';
+	private const API_VERSION = '2.1.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
 	private const RETRY_STATUS = [429, 500, 502, 503, 504];
@@ -128,30 +128,30 @@ final class Client
 
 	public function city(string $name, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, bool $aliases = false, ?string $ambiguity = null, ?string $format = null, bool $romanized = false): array
 	{
-		return $this->get('/city/' . rawurlencode($name), ['romanized' => $romanized, 'format' => $format, 'country' => $country, 'state' => $state, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'aliases' => $aliases, 'ambiguity' => $ambiguity]);
+		return $this->get('/city/' . rawurlencode($name), ['romanized' => $romanized, 'format' => $this->cityFormat($format), 'country' => $country, 'state' => $state, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'aliases' => $aliases, 'ambiguity' => $ambiguity]);
 	}
 
 	public function cityId(string $id, bool $deep = false, ?string $lang = null, bool $hierarchy = false, ?string $format = null, bool $romanized = false): array
 	{
-		return $this->get('/city/id/' . rawurlencode($id), ['romanized' => $romanized, 'format' => $format, 'deep' => $deep, 'lang' => $lang, 'hierarchy' => $hierarchy]);
+		return $this->get('/city/id/' . rawurlencode($id), ['romanized' => $romanized, 'format' => $this->cityFormat($format), 'deep' => $deep, 'lang' => $lang, 'hierarchy' => $hierarchy]);
 	}
 
-	public function citySearch(string $query, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, bool $aliases = false, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $timezone = null, ?string $bbox = null, ?string $sort = null, ?string $order = null, bool $page = false, ?string $cursor = null, ?string $format = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, ?string $match = null, ?int $maxDistance = null, bool $romanized = false): array
+	public function citySearch(string $query, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, bool $aliases = false, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $bbox = null, ?string $sort = null, bool $page = false, ?string $cursor = null, ?string $format = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, ?string $match = null, ?int $maxDistance = null, bool $romanized = false): array
 	{
 		$spelling = $match !== null || $maxDistance !== null;
-		$response = $this->get($spelling ? '/city/search' : '/city', ['romanized' => $romanized, 'format' => $format, 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation, 'q' => $query, 'match' => $match, 'max_distance' => $maxDistance, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'aliases' => $aliases, 'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'timezone' => $timezone, 'bbox' => $bbox, 'sort' => $sort, 'order' => $order, 'page' => $page, 'cursor' => $cursor]);
+		$response = $this->get($spelling ? '/city/search' : '/city', ['romanized' => $romanized, 'format' => $this->cityFormat($format), 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation, 'q' => $query, 'match' => $match, 'max_distance' => $maxDistance, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'aliases' => $aliases, 'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'bbox' => $bbox, 'sort' => $sort, 'page' => $page, 'cursor' => $cursor]);
 		if ($spelling && $format === null) return ['q'=>$query, 'cities'=>$response['data'], 'next_cursor'=>$response['next_cursor'] ?? null] + ($country !== null ? ['country'=>$country] : []) + ($state !== null ? ['state'=>$state] : []);
 		return $response;
 	}
 
 	public function cityNearest(float $lat, float $lon, bool $deep = false, ?string $lang = null, ?string $country = null, ?string $state = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, ?string $format = null, bool $romanized = false): array
 	{
-		return $this->get('/city', ['romanized' => $romanized, 'format' => $format, 'lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'lang' => $lang, 'country' => $country, 'state' => $state, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy]);
+		return $this->get('/city', ['romanized' => $romanized, 'format' => $this->cityFormat($format), 'lat' => $lat, 'lon' => $lon, 'deep' => $deep, 'lang' => $lang, 'country' => $country, 'state' => $state, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy]);
 	}
 
-	public function cityNearby(string $name, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, bool $aliases = false, ?string $ambiguity = null, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $timezone = null, ?string $bbox = null, ?string $sort = null, ?string $order = null, bool $page = false, ?string $cursor = null, ?string $format = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, bool $romanized = false): array
+	public function cityNearby(string $name, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, bool $aliases = false, ?string $ambiguity = null, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $bbox = null, ?string $sort = null, bool $page = false, ?string $cursor = null, ?string $format = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, bool $romanized = false): array
 	{
-		return $this->get('/city/' . rawurlencode($name) . '/nearby', ['romanized' => $romanized, 'format' => $format, 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation,
+		return $this->get('/city/' . rawurlencode($name) . '/nearby', ['romanized' => $romanized, 'format' => $this->cityFormat($format), 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation,
 			'radius' => $radius,
 			'unit' => $unit,
 			'country' => $country,
@@ -164,7 +164,7 @@ final class Client
 			'hierarchy' => $hierarchy,
 			'aliases' => $aliases,
 			'ambiguity' => $ambiguity,
-			'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'timezone' => $timezone, 'bbox' => $bbox, 'sort' => $sort, 'order' => $order, 'page' => $page, 'cursor' => $cursor,
+			'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'bbox' => $bbox, 'sort' => $sort, 'page' => $page, 'cursor' => $cursor,
 		]);
 	}
 
@@ -183,14 +183,14 @@ final class Client
 	public function cityDistance(string $from, string $to): array
 	{ return $this->get('/city/id/' . rawurlencode($from) . '/distance/' . rawurlencode($to)); }
 
-	public function cityList(?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $timezone = null, ?string $bbox = null, ?string $sort = null, ?string $order = null, ?string $cursor = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, bool $romanized = false): array
+	public function cityList(?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $bbox = null, ?string $sort = null, ?string $cursor = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, bool $romanized = false): array
 	{
-		return $this->get('/city', ['romanized' => $romanized, 'format' => 'list', 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation, 'browse' => true, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'timezone' => $timezone, 'bbox' => $bbox, 'sort' => $sort, 'order' => $order, 'cursor' => $cursor]);
+		return $this->get('/city', ['romanized' => $romanized, 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation, 'browse' => true, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'bbox' => $bbox, 'sort' => $sort, 'cursor' => $cursor]);
 	}
 
-	public function cityNearbyCoords(float $lat, float $lon, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $timezone = null, ?string $bbox = null, ?string $sort = null, ?string $order = null, ?string $cursor = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, bool $romanized = false): array
+	public function cityNearbyCoords(float $lat, float $lon, ?float $radius = null, ?string $unit = null, ?string $country = null, ?string $state = null, ?int $limit = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, ?int $minPopulation = null, ?int $maxPopulation = null, ?string $bbox = null, ?string $sort = null, ?string $cursor = null, array|string|null $countries = null, array|string|null $excludeCountries = null, array|string|null $timezones = null, ?float $minElevation = null, ?float $maxElevation = null, bool $romanized = false): array
 	{
-		return $this->get('/city', ['romanized' => $romanized, 'format' => 'list', 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation, 'lat' => $lat, 'lon' => $lon, 'nearby' => true, 'radius' => $radius, 'unit' => $unit, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'timezone' => $timezone, 'bbox' => $bbox, 'sort' => $sort, 'order' => $order, 'cursor' => $cursor]);
+		return $this->get('/city', ['romanized' => $romanized, 'countries' => $this->cityCsv($countries), 'exclude_countries' => $this->cityCsv($excludeCountries), 'timezones' => $this->cityCsv($timezones), 'min_elevation' => $minElevation, 'max_elevation' => $maxElevation, 'lat' => $lat, 'lon' => $lon, 'nearby' => true, 'radius' => $radius, 'unit' => $unit, 'country' => $country, 'state' => $state, 'limit' => $limit, 'deep' => $deep, 'lang' => $lang, 'type' => $type, 'grain' => $grain, 'hierarchy' => $hierarchy, 'min_population' => $minPopulation, 'max_population' => $maxPopulation, 'bbox' => $bbox, 'sort' => $sort, 'cursor' => $cursor]);
 	}
 
 	public function citySiblings(string $id, ?int $limit = null, ?string $cursor = null, bool $hierarchy = false, bool $deep = false, ?string $lang = null, bool $romanized = false): array
@@ -249,12 +249,6 @@ final class Client
 		return $this->get('/company', ['q' => $query, 'domain' => $domain, 'ticker' => $ticker, 'identifier' => $identifier, 'country' => $country, 'exchange' => $exchange, 'authority' => $authority, 'limit' => $limit, 'cursor' => $cursor, 'deep' => $deep, 'industry' => $industry, 'industry_type' => $industryType]);
 	}
 
-	/** Read the directory edition and source coverage. */
-	public function companyCoverage(): array
-	{
-		return $this->get('/company/directory/coverage');
-	}
-
 	/**
 	 * Parse an email and check its format and domain. Deep explicitly requests a metered
 	 * deliverability check. Deep checks use one attempt by default. An explicit retry count can
@@ -262,18 +256,20 @@ final class Client
 	 */
 	public function email(string $email, bool $deep = false): array
 	{
-		return $this->get('/email/' . rawurlencode($email), ['deep' => $deep]);
+		return $deep ? $this->emailVerify($email) : $this->get('/email/' . rawurlencode($email));
 	}
 
-
-
-
-
-
-	public function bin(string $bin, bool $deep = false): array
+	/** Run one explicit metered mailbox check. No automatic retries by default. */
+	public function emailVerify(string $email): array
 	{
-		return $this->get('/bin/' . rawurlencode($bin), ['deep' => $deep]);
+		return $this->get('/email/verify', [], [], ['email' => $email]);
 	}
+
+
+
+
+
+
 
 
 
@@ -441,6 +437,12 @@ final class Client
 		return $this->get('/time/zones', ['q' => $query, 'country' => $country, 'area' => $area, 'offset' => $offset, 'abbreviation' => $abbreviation, 'dst' => $dst === null ? null : ($dst ? 'true' : 'false'), 'observes_dst' => $observesDst === null ? null : ($observesDst ? 'true' : 'false'), 'at' => $at, 'details' => $details, 'sort' => $sort]);
 	}
 
+	private function cityFormat(?string $format): ?string
+	{
+		if ($format !== null && $format !== 'geojson') throw new \InvalidArgumentException('Use format=geojson or omit format.');
+		return $format;
+	}
+
 	private static function timeSource(?string $timezone, array $values): array
 	{
 		$primary = array_filter(array_intersect_key($values, array_flip(['ip', 'city', 'iata', 'icao', 'unlocode', 'address'])), fn($value) => $value !== null);
@@ -516,7 +518,7 @@ final class Client
 	/**
 	 * Get current conditions in metric and imperial units. Paid deep adds specialist current
 	 * measurements, forecasts and related detail. With deep, date selects a past UTC day (YYYY-MM-DD)
-	 * in deep.history alongside current conditions. Date alone does not request history.
+	 * in history alongside current conditions. Date alone does not request history.
 	 */
 	public function weather(float $lat, float $lon, bool $deep = false, ?string $date = null): array
 	{
@@ -543,15 +545,12 @@ final class Client
 		return $this->get('/emoji/convert', ['direction' => $direction, 'shortcode_source' => $shortcodeSource], [], ['text' => $text]);
 	}
 
-	public function emojiCatalog(bool $deep = true, ?string $lang = null, ?string $category = null, ?string $subcategory = null, ?string $version = null, ?string $maxVersion = null, ?bool $includeSkinTones = null, ?string $profile = null): array
+	public function emojiCatalog(?string $lang = null, ?string $category = null, ?string $subcategory = null, ?string $version = null, ?string $maxVersion = null, ?bool $includeSkinTones = null): array
 	{
-		return $this->get('/emoji/catalog', ['profile' => $profile, 'deep' => $deep ? 'true' : 'false', 'lang' => $lang, 'category' => $category, 'subcategory' => $subcategory, 'version' => $version, 'max_version' => $maxVersion, 'include_skin_tones' => $includeSkinTones === null ? null : ($includeSkinTones ? 'true' : 'false')]);
+		return $this->get('/emoji/catalog', ['lang' => $lang, 'category' => $category, 'subcategory' => $subcategory, 'version' => $version, 'max_version' => $maxVersion, 'include_skin_tones' => $includeSkinTones === null ? null : ($includeSkinTones ? 'true' : 'false')]);
 	}
 
-	public function emojiMetadata(): array
-	{
-		return $this->get('/emoji/metadata');
-	}
+	
 
 	public function emojiCategories(): array
 	{
@@ -590,7 +589,7 @@ final class Client
 		$requestHeaders = array_merge(
 			['X-API-Key' => $this->apiKey, 'User-Agent' => 'parseapi-php/' . self::VERSION],
 			$headers,
-			['Parse-Version' => self::API_VERSION],
+			['X-API-Version' => self::API_VERSION],
 		);
 
 		$requestBody = $json === null ? null : json_encode($json, JSON_THROW_ON_ERROR);
@@ -696,7 +695,7 @@ final class Client
 			return $this->retries;
 		}
 		$product = explode('/', ltrim($path, '/'), 2)[0];
-		$metered = in_array($product, self::METERED_CORE, true)
+		$metered = $path === '/email/verify' || in_array($product, self::METERED_CORE, true)
 			|| (in_array($product, ['email', 'vat', 'address'], true) && ($query['deep'] ?? false) === true);
 		return $metered ? 0 : 2;
 	}

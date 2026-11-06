@@ -44,7 +44,6 @@ final class CompanyDirectoryTest extends TestCase
 			[fn ($p) => $p->companySearch(country: 'US', industry: '0700', industryType: 'sic', cursor: 'opaque+/=', limit: 2, deep: true), '/company', ['country' => 'US', 'limit' => '2', 'cursor' => 'opaque+/=', 'deep' => 'true', 'industry' => '0700', 'industry_type' => 'sic']],
 			[fn ($p) => $p->companySearch(query: 'Example', industry: '0700', industryType: 'sic', deep: false), '/company', ['q' => 'Example', 'industry' => '0700', 'industry_type' => 'sic']],
 			[fn ($p) => $p->companySearch('Example', null, null, null, 'US', null, null, 2, 'old+/=', true), '/company', ['q' => 'Example', 'country' => 'US', 'limit' => '2', 'cursor' => 'old+/=', 'deep' => 'true']],
-			[fn ($p) => $p->companyCoverage(), '/company/directory/coverage', []],
 		];
 		foreach ($cases as [$call, $path, $params]) {
 			$body = ['companies' => [], 'next' => null, 'future' => null];
@@ -53,7 +52,7 @@ final class CompanyDirectoryTest extends TestCase
 			$this->assertCount(1, $this->calls);
 			$this->assertSame($path, parse_url($this->calls[0]['url'], PHP_URL_PATH));
 			$this->assertSame($params, $this->params(0));
-			$this->assertSame('2.0.0', $this->calls[0]['headers']['Parse-Version']);
+			$this->assertSame('2.1.0', $this->calls[0]['headers']['X-API-Version']);
 			$this->assertSame('company_fixture', $this->calls[0]['headers']['X-API-Key']);
 		}
 	}
@@ -65,15 +64,13 @@ final class CompanyDirectoryTest extends TestCase
 		$profiles = [$base, $base + ['deep' => (object) []], $base + ['deep' => $rich], $base + ['deep' => ['description' => null, 'logo' => null, 'socials' => null, 'founded' => null, 'sources' => null]]];
 		$page = ['companies' => array_map(fn ($p) => $p + ['match' => ['field' => 'future_field', 'value' => null]], $profiles), 'next' => 'opaque+/=', 'future' => null];
 		$empty = ['companies' => [], 'next' => null];
-		$coverage = ['scope' => 'future_scope', 'companies' => 0, 'countries' => [], 'future' => null];
-		$client = $this->client(array_map(fn ($body) => [200, $body], [...$profiles, $page, $empty, $coverage]));
+		$client = $this->client(array_map(fn ($body) => [200, $body], [...$profiles, $page, $empty]));
 		foreach ($profiles as $i => $profile) {
 			$this->assertSame(json_decode(json_encode($profile, JSON_THROW_ON_ERROR), true), $client->companyId($base['id'], deep: $i > 0));
 		}
 		$this->assertSame(json_decode(json_encode($page, JSON_THROW_ON_ERROR), true), $client->companySearch(query: 'GitLab', limit: 4, deep: true));
 		$this->assertSame($empty, $client->companySearch(query: 'GitLab', limit: 4, cursor: $page['next'], deep: true));
-		$this->assertSame($coverage, $client->companyCoverage());
-		$this->assertCount(7, $this->calls);
+		$this->assertCount(6, $this->calls);
 		$this->assertSame(['q' => 'GitLab', 'limit' => '4', 'cursor' => 'opaque+/=', 'deep' => 'true'], $this->params(5));
 	}
 
@@ -99,7 +96,7 @@ final class CompanyDirectoryTest extends TestCase
 		$this->assertSame([], $client->companyId('co_caczn6wf36hj', deep: true));
 		$this->assertCount(3, $this->calls);
 		$client = $this->client([[503, []]], retries: 0);
-		try { $client->companyCoverage(); $this->fail('Expected 503'); } catch (ParseAPIError $e) { $this->assertSame(503, $e->status); }
+		try { $client->companySearch(query: 'Example'); $this->fail('Expected 503'); } catch (ParseAPIError $e) { $this->assertSame(503, $e->status); }
 		$this->assertCount(1, $this->calls);
 	}
 
@@ -119,7 +116,7 @@ final class CompanyDirectoryTest extends TestCase
 		preg_match('/```php\n(.*?)```/s', $section, $match);
 		$parse = $this->client([[200, ['companies' => [], 'next' => 'opaque+/=']], [200, ['deep' => []]], [200, ['companies' => [], 'next' => null]], [200, ['scope' => 'sample']]]);
 		eval($match[1]);
-		$this->assertCount(4, $this->calls);
+		$this->assertCount(3, $this->calls);
 		$this->assertSame('/company/id/co_caczn6wf36hj', parse_url($this->calls[1]['url'], PHP_URL_PATH));
 		$this->assertSame('opaque+/=', $this->params(2)['cursor']);
 	}
