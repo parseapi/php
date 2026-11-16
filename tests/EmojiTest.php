@@ -29,7 +29,7 @@ final class EmojiTest extends TestCase
 		$this->assertSame('https://api.parseapi.com/emoji/parse?deep=true&lang=fr', $calls[4]['url']);
 		$this->assertSame('POST', $calls[4]['method']);
 		$this->assertSame(['text'=>'x 👍🏿 👍🏿'], json_decode($calls[4]['body'],true,512,JSON_THROW_ON_ERROR));
-		$this->assertSame('2.1.0',$calls[4]['headers']['X-API-Version']);
+		$this->assertSame('2.2.0',$calls[4]['headers']['X-API-Version']);
 		$this->assertCount(5, $calls);
 	}
 	public function testFullDownloadMetadataAndArtwork(): void

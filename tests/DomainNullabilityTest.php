@@ -14,7 +14,7 @@ final class DomainNullabilityTest extends TestCase {
                 $this->assertSame(json_decode(json_encode($body), true), $client->domain('example.com', deep: true));
                 $this->assertCount(1, $calls);
                 $this->assertSame('https://api.parseapi.com/domain/example.com?deep=true', $calls[0][0]);
-                $this->assertSame('2.1.0', $calls[0][1]['X-API-Version']);
+                $this->assertSame('2.2.0', $calls[0][1]['X-API-Version']);
             }
         }
     }

@@ -52,7 +52,7 @@ final class CompanyDirectoryTest extends TestCase
 			$this->assertCount(1, $this->calls);
 			$this->assertSame($path, parse_url($this->calls[0]['url'], PHP_URL_PATH));
 			$this->assertSame($params, $this->params(0));
-			$this->assertSame('2.1.0', $this->calls[0]['headers']['X-API-Version']);
+			$this->assertSame('2.2.0', $this->calls[0]['headers']['X-API-Version']);
 			$this->assertSame('company_fixture', $this->calls[0]['headers']['X-API-Key']);
 		}
 	}

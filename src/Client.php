@@ -12,8 +12,8 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.12.0';
-	private const API_VERSION = '2.1.0';
+	public const VERSION = '1.13.0';
+	private const API_VERSION = '2.2.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
 	private const RETRY_STATUS = [429, 500, 502, 503, 504];
@@ -116,15 +116,23 @@ final class Client
 		return $this->get('/state/' . rawurlencode($code), ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function stateDistricts(string $code, ?string $country = null, bool $deep = false, ?string $lang = null): array
+	public function stateCounties(string $code, ?string $country = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/state/' . rawurlencode($code) . '/districts', ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
+		return $this->get('/state/' . rawurlencode($code) . '/counties', ['country' => $country, 'deep' => $deep, 'lang' => $lang]);
 	}
 
-	public function district(string $code, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null): array
+	public function county(string $code, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/district/' . rawurlencode($code), ['country' => $country, 'state' => $state, 'deep' => $deep, 'lang' => $lang]);
+		return $this->get('/county/' . rawurlencode($code), ['country' => $country, 'state' => $state, 'deep' => $deep, 'lang' => $lang]);
 	}
+
+	/** @deprecated Use stateCounties. API 2.2 returns counties/county fields. */
+	public function stateDistricts(string $code, ?string $country = null, bool $deep = false, ?string $lang = null): array
+	{ return $this->stateCounties($code, $country, $deep, $lang); }
+
+	/** @deprecated Use county. API 2.2 returns county fields. */
+	public function district(string $code, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null): array
+	{ return $this->county($code, $country, $state, $deep, $lang); }
 
 	public function city(string $name, ?string $country = null, ?string $state = null, bool $deep = false, ?string $lang = null, ?string $type = null, ?string $grain = null, bool $hierarchy = false, bool $aliases = false, ?string $ambiguity = null, ?string $format = null, bool $romanized = false): array
 	{
@@ -506,7 +514,7 @@ final class Client
 	}
 
 	/**
-	 * Resolve the country, state, district and timezone at coordinates. Deep adds terrain and compact
+	 * Resolve the country, state, county and timezone at coordinates. Deep adds terrain and compact
 	 * nearest-city context on every plan. The timezone ID stays in core. The nearest city is null when
 	 * none is within 200 km.
 	 */

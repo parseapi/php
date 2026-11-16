@@ -1075,6 +1075,35 @@
                 ],
                 "return": "array"
             },
+            "county": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "state",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
             "currency": {
                 "parameters": [
                     {
@@ -1808,6 +1837,30 @@
                 "return": "array"
             },
             "state": {
+                "parameters": [
+                    {
+                        "name": "code",
+                        "type": "string"
+                    },
+                    {
+                        "name": "country",
+                        "type": "?string",
+                        "default": null
+                    },
+                    {
+                        "name": "deep",
+                        "type": "bool",
+                        "default": false
+                    },
+                    {
+                        "name": "lang",
+                        "type": "?string",
+                        "default": null
+                    }
+                ],
+                "return": "array"
+            },
+            "stateCounties": {
                 "parameters": [
                     {
                         "name": "code",

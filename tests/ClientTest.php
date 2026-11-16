@@ -45,7 +45,7 @@ final class ClientTest extends TestCase
 			$this->assertSame($body, $client->stack('example.com'));
 			$this->assertSame('https://api.parseapi.com/stack/b%C3%BCcher.example?deep=true&pretty=true', $this->calls[0]['url']);
 			$this->assertSame('https://api.parseapi.com/stack/example.com', $this->calls[1]['url']);
-			$this->assertSame('2.1.0', $this->calls[0]['headers']['X-API-Version']);
+			$this->assertSame('2.2.0', $this->calls[0]['headers']['X-API-Version']);
 		}
 	}
 
@@ -208,8 +208,8 @@ final class ClientTest extends TestCase
 			'country' => [fn (Client $p) => $p->country('US'), 'https://api.parseapi.com/country/US'],
 			'countryStates' => [fn (Client $p) => $p->countryStates('US'), 'https://api.parseapi.com/country/US/states'],
 			'state' => [fn (Client $p) => $p->state('NC', 'US'), 'https://api.parseapi.com/state/NC?country=US'],
-			'stateDistricts' => [fn (Client $p) => $p->stateDistricts('NC', 'US'), 'https://api.parseapi.com/state/NC/districts?country=US'],
-			'district' => [fn (Client $p) => $p->district('37081'), 'https://api.parseapi.com/district/37081'],
+			'stateDistricts' => [fn (Client $p) => $p->stateDistricts('NC', 'US'), 'https://api.parseapi.com/state/NC/counties?country=US'],
+			'district' => [fn (Client $p) => $p->district('37081'), 'https://api.parseapi.com/county/37081'],
 			'city' => [fn (Client $p) => $p->city('charlotte', state: 'NC'), 'https://api.parseapi.com/city/charlotte?state=NC'],
 			'cityId' => [fn (Client $p) => $p->cityId('city_mb8mbqrkz8zb'), 'https://api.parseapi.com/city/id/city_mb8mbqrkz8zb'],
 			'citySearch' => [fn (Client $p) => $p->citySearch('char', country: 'US', limit: 10), 'https://api.parseapi.com/city?q=char&country=US&limit=10'],

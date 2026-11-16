@@ -8,7 +8,7 @@ final class ResponseDecodingTest extends TestCase {
    $calls[]=[$url,$headers]; return count($calls)===1 ? [503,['Retry-After'=>'0'],'{"code":"unavailable"}'] : [200,[],$body];
   });
   $this->assertSame(json_decode($body,true),$client->timeZones()); $this->assertCount(2,$calls);
-  foreach($calls as [$url,$headers]) {$this->assertArrayNotHasKey('Parse-Response',$headers);$this->assertSame('2.1.0',$headers['X-API-Version']);$this->assertNull(parse_url($url,PHP_URL_QUERY));}
+  foreach($calls as [$url,$headers]) {$this->assertArrayNotHasKey('Parse-Response',$headers);$this->assertSame('2.2.0',$headers['X-API-Version']);$this->assertNull(parse_url($url,PHP_URL_QUERY));}
  }
 
  public function testSevenNumericFieldsPassThrough(): void {

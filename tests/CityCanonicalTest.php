@@ -11,7 +11,7 @@ final class CityCanonicalTest extends TestCase
     {
         $calls = []; $id = 'city_7aj899nvwyku';
         $body = ['object' => 'list', 'data' => [['id' => $id, 'object' => 'city', 'name' => 'Vienna']], 'has_more' => true, 'url' => '/city', 'next_cursor' => 'opaque+/='];
-        $client = new Client('fixture', retries: 0, transport: function ($url, $headers) use (&$calls, &$body) { $calls[] = $url; $this->assertSame('2.1.0', $headers['X-API-Version']); return [200, [], json_encode($body, JSON_THROW_ON_ERROR)]; });
+        $client = new Client('fixture', retries: 0, transport: function ($url, $headers) use (&$calls, &$body) { $calls[] = $url; $this->assertSame('2.2.0', $headers['X-API-Version']); return [200, [], json_encode($body, JSON_THROW_ON_ERROR)]; });
         $this->assertSame($body, $client->cityList(countries: ['AT', 'CH'], excludeCountries: ['JP'], timezones: ['Europe/Vienna'], minElevation: -10, maxElevation: 0, minPopulation: 0, sort: '-population,+name', cursor: 'opaque+/='));
         parse_str(parse_url($calls[0], PHP_URL_QUERY), $query);
         foreach (['countries'=>'AT,CH','exclude_countries'=>'JP','timezones'=>'Europe/Vienna','min_elevation'=>'-10','max_elevation'=>'0','min_population'=>'0','sort'=>'-population,+name','cursor'=>'opaque+/='] as $key=>$value) { $this->assertSame($value, $query[$key]); }

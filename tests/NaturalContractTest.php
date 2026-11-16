@@ -21,7 +21,7 @@ final class NaturalContractTest extends TestCase
         $this->assertSame('GET', $calls[0][2]);
         foreach (array_slice($calls, 1) as [$url, $headers, $method, $body]) {
             $this->assertSame('https://api.parseapi.com/email/verify', $url);
-            $this->assertSame('2.1.0', $headers['X-API-Version']);
+            $this->assertSame('2.2.0', $headers['X-API-Version']);
             $this->assertSame('POST', $method);
             $this->assertSame(['email' => $result['email']], json_decode($body, true, 512, JSON_THROW_ON_ERROR));
         }
