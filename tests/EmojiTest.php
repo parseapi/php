@@ -26,9 +26,9 @@ final class EmojiTest extends TestCase
 		parse_str(parse_url($calls[2]['url'],PHP_URL_QUERY), $browse);
 		$this->assertSame(['include_skin_tones'=>'false','offset'=>'2'], $browse);
 		$this->assertSame('https://api.parseapi.com/emoji/categories', $calls[3]['url']);
-		$this->assertSame('https://api.parseapi.com/emoji/parse?deep=true&lang=fr', $calls[4]['url']);
-		$this->assertSame('POST', $calls[4]['method']);
-		$this->assertSame(['text'=>'x 👍🏿 👍🏿'], json_decode($calls[4]['body'],true,512,JSON_THROW_ON_ERROR));
+		parse_str(parse_url($calls[4]['url'],PHP_URL_QUERY), $parse); $this->assertSame(['text'=>'x 👍🏿 👍🏿','deep'=>'true','lang'=>'fr'],$parse);
+		$this->assertSame('GET', $calls[4]['method']);
+		$this->assertNull($calls[4]['body']);
 		$this->assertSame('2.2.0',$calls[4]['headers']['X-API-Version']);
 		$this->assertCount(5, $calls);
 	}
@@ -54,7 +54,7 @@ final class EmojiTest extends TestCase
  {
   $calls=[];$client=new Client('test',transport:function($url,$headers,$method='GET',$body=null) use (&$calls){$calls[]=compact('url','method','body');return [200,[], '{"text":"🚀","unresolved":[]}'];});
   $this->assertSame('🚀',$client->emojiConvert(':rocket:',direction:'to_emoji',shortcodeSource:'github')['text']);
-  $this->assertCount(1,$calls);$this->assertSame('POST',$calls[0]['method']);$this->assertSame(['text'=>':rocket:'],json_decode($calls[0]['body'],true));
+  $this->assertCount(1,$calls);$this->assertSame('GET',$calls[0]['method']);parse_str(parse_url($calls[0]['url'],PHP_URL_QUERY),$query);$this->assertSame(':rocket:',$query['text']);$this->assertNull($calls[0]['body']);
  }
 
 
@@ -69,4 +69,17 @@ final class EmojiTest extends TestCase
   $this->assertSame('https://cdn.parseapi.com/emoji/openmoji/17.0.0/1f680.svg',$artwork['openmoji']['svg']);
   $this->assertSame('https://cdn.parseapi.com/emoji/openmoji/17.0.0/72/1f680.png',$artwork['openmoji']['png']['72']);
  }
+
+    public function testLongTextUsesOnePostAndEmptyTextUsesGet(): void
+    {
+        foreach ([str_repeat('🚀', 8000), ''] as $text) {
+            $calls=[];
+            $client=new Client('fixture',transport:function($url,$headers,$method='GET',$body=null) use (&$calls) { $calls[]=compact('url','method','body'); return [200,[], '{"emojis":[]}']; });
+            $client->emojiParse($text);
+            $this->assertCount(1,$calls);parse_str(parse_url($calls[0]['url'],PHP_URL_QUERY)??'', $query);
+            if ($text !== '') { $this->assertSame('POST',$calls[0]['method']);$this->assertSame(['text'=>$text],json_decode($calls[0]['body'],true));$this->assertArrayNotHasKey('text',$query); }
+            else { $this->assertSame('GET',$calls[0]['method']);$this->assertSame('',$query['text']); }
+        }
+    }
+
 }

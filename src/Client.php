@@ -12,7 +12,7 @@ namespace ParseAPI;
  */
 final class Client
 {
-	public const VERSION = '1.13.0';
+	public const VERSION = '1.13.1';
 	private const API_VERSION = '2.2.0';
 
 	private const DEFAULT_BASE_URL = 'https://api.parseapi.com';
@@ -270,7 +270,7 @@ final class Client
 	/** Run one explicit metered mailbox check. No automatic retries by default. */
 	public function emailVerify(string $email): array
 	{
-		return $this->get('/email/verify', [], [], ['email' => $email]);
+		return $this->get('/email/verify', ['email' => $email]);
 	}
 
 
@@ -550,7 +550,7 @@ final class Client
 
 	public function emojiConvert(string $text, string $direction, string $shortcodeSource): array
 	{
-		return $this->get('/emoji/convert', ['direction' => $direction, 'shortcode_source' => $shortcodeSource], [], ['text' => $text]);
+		return $this->get('/emoji/convert', ['text' => $text, 'direction' => $direction, 'shortcode_source' => $shortcodeSource]);
 	}
 
 	public function emojiCatalog(?string $lang = null, ?string $category = null, ?string $subcategory = null, ?string $version = null, ?string $maxVersion = null, ?bool $includeSkinTones = null): array
@@ -568,7 +568,7 @@ final class Client
 	/** Positions are UTF-16 code units; end is exclusive. */
 	public function emojiParse(string $text, bool $deep = false, ?string $lang = null): array
 	{
-		return $this->get('/emoji/parse', ['deep' => $deep, 'lang' => $lang], [], ['text' => $text]);
+		return $this->get('/emoji/parse', ['text' => $text, 'deep' => $deep, 'lang' => $lang]);
 	}
 
 	// --- Transport ---
@@ -592,6 +592,15 @@ final class Client
 		$url = $this->baseUrl . $path;
 		if ($clean !== []) {
 			$url .= '?' . http_build_query($clean);
+		}
+
+		if ($json === null && in_array($path, ['/email/verify', '/emoji/parse', '/emoji/convert'], true)) {
+			$field = $path === '/email/verify' ? 'email' : 'text';
+			$value = $query[$field] ?? null;
+			if (!is_string($value) || preg_match('//u', $value) !== 1 || strlen($url) > 8000) {
+				$json = [$field => $value]; unset($clean[$field]);
+				$url = $this->baseUrl . $path . ($clean === [] ? '' : '?' . http_build_query($clean));
+			}
 		}
 
 		$requestHeaders = array_merge(
